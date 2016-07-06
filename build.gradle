@@ -16,15 +16,20 @@ mainClassName = 'io.vertx.core.Launcher'
 
 dependencies {
     compile "io.vertx:vertx-core:3.3.0"
+    compile 'io.vertx:vertx-web:3.3.0'
 }
 
 shadowJar {
     classifier = 'fat'
     manifest {
-        attributes 'Main-Verticle': 'com.socobo.HelloWorldVerticle'
+        attributes 'Main-Verticle': 'com.socobo.MainVerticle'
     }
     mergeServiceFiles {
         include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+    }
+
+    into 'webroot', {
+        from 'src/main/webroot'
     }
 }
 
