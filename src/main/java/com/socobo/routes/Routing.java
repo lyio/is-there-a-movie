@@ -1,8 +1,8 @@
 package com.socobo.routes;
 
-import io.vertx.core.logging.Logger;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
+
 
 public class Routing {
 
