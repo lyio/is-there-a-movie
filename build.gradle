@@ -4,7 +4,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
-group 'com.socobo'
+group 'com.botomo'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -22,7 +22,7 @@ dependencies {
 shadowJar {
     classifier = 'fat'
     manifest {
-        attributes 'Main-Verticle': 'com.socobo.MainVerticle'
+        attributes 'Main-Verticle': 'com.botomo.MainVerticle'
     }
     mergeServiceFiles {
         include 'META-INF/services/io.vertx.core.spi.VerticleFactory'

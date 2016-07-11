@@ -1,4 +1,4 @@
-package com.socobo.routes;
+package com.botomo.routes;
 
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;

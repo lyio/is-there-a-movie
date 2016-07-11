@@ -1,11 +1,11 @@
-package com.socobo;
+package com.botomo;
 
-import com.socobo.routes.Routing;
+import com.botomo.routes.Routing;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.ext.web.Router;
 
-
+@SuppressWarnings("unused")
 public class MainVerticle extends AbstractVerticle {
     
     @Override
