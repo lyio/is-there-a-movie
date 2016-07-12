@@ -48,7 +48,7 @@ Path parameters:
 Path parameters:
 - id: book id
 
-**GET api/v1/books?search&searchterm**
+**GET api/v1/books?search=searchterm**
 
 Query parameter
 - searchterm: search term
