@@ -1,0 +1,1 @@
+web java -jar -Dhttp.port=$PORT $JAVA_OPTS build/libs/botomo-1.0-SNAPSHOT-fat.jar
