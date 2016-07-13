@@ -21,7 +21,7 @@ public class BookHandler {
             b.setAuthor("Hodor" + i);
             b.setSubtitle("Never gonna let you go");
             b.setTitle("Never gonna give you up");
-            b.setYear(new Date());
+            b.setYear(String.valueOf(new Date().getTime()));
             b.setUps((int) (Math.random() * 1000 * i));
             b.setDowns((int) (Math.random() * 1000 * i));
             list.add(b);

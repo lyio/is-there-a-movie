@@ -14,15 +14,20 @@ public class Book {
     private String title;
     private String subtitle;
     private String author;
-    private Date year;
+    private String year;
     private int downs;
     private int ups;
     
     public Book() {	}
 
     public Book(JsonObject json){
-    	this.mongo_id = json.getString("_id");
+    	this.mongo_id = json.getJsonObject("_id").getString("$oid");
     	this.title = json.getString("title");
+    	this.subtitle = json.getString("subtitle");
+    	this.author = json.getString("author");
+    	this.year = json.getString("year");
+    	this.downs = json.getInteger("downs");
+    	this.ups = json.getInteger("ups");
     }
     
     public boolean search(String searchTerm) {
@@ -60,11 +65,11 @@ public class Book {
         this.author = author;
     }
 
-    public Date getYear() {
+    public String getYear() {
         return year;
     }
 
-    public void setYear(Date year) {
+    public void setYear(String year) {
         this.year = year;
     }
 
