@@ -4,19 +4,18 @@ import com.botomo.data.BookCrudVerticle;
 import com.botomo.handlers.BookHandler;
 import com.botomo.routes.Routing;
 
-import io.netty.util.internal.SystemPropertyUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 
 @SuppressWarnings("unused")
 public class MainVerticle extends AbstractVerticle {
     
-	private static String DB_NAME = "DBNAME";
-	private static String DB_CONNECTION_STRING = "DBURL";
+	private static final String DB_NAME = "DBNAME";
+	private static final String DB_CONNECTION_STRING = "DBURL";
+	private static final String PORT = "http.port";
 	
     @Override
 	public void start(Future<Void> startFuture) throws Exception {
@@ -34,7 +33,7 @@ public class MainVerticle extends AbstractVerticle {
 		vertx
 			.createHttpServer()
 			.requestHandler(routing.register()::accept)
-			.listen(config().getInteger("http.port", 8080), result -> {
+			.listen(config().getInteger(PORT, 8080), result -> {
 				if (result.succeeded()) {
 					startFuture.complete();
 				} else {

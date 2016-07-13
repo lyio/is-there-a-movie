@@ -1,20 +1,19 @@
 package com.botomo.handlers;
 
-import com.botomo.StringUtils;
-import com.botomo.data.CrudAddresses;
-import com.botomo.models.Book;
-
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.RoutingContext;
+import static com.botomo.routes.EventBusAddresses.GET_ALL;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.botomo.StringUtils;
+import com.botomo.models.Book;
+
+import io.vertx.core.Vertx;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
 
 public class BookHandler {
 
@@ -48,7 +47,7 @@ public class BookHandler {
      */
     private void getAllBooks(RoutingContext context){
     	vertx.eventBus().send(
-    			CrudAddresses.GET_ALL.message(),
+    			GET_ALL,
     			null,
     			message -> {
     				if (message.succeeded()) {

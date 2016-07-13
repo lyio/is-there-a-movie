@@ -1,9 +1,6 @@
 package com.botomo.handlers;
 
-import java.util.List;
-
-import com.botomo.data.CrudAddresses;
-import com.botomo.models.Book;
+import static com.botomo.routes.EventBusAddresses.GET_ALL;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -19,7 +16,7 @@ public class TestHandler implements Handler<RoutingContext> {
 	
 	@Override
 	public void handle(RoutingContext event) {
-		vertx.eventBus().send(CrudAddresses.GET_ALL.message(),
+		vertx.eventBus().send(GET_ALL,
 				null, reply -> {
 					String json = (String)(reply.result().body());
 					System.out.println("******************");

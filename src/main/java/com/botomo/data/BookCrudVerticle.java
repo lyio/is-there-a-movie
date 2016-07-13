@@ -1,21 +1,20 @@
 package com.botomo.data;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.mongo.MongoClient;
-import static com.botomo.data.CrudAddresses.*;
+import static com.botomo.routes.EventBusAddresses.GET_ALL;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.botomo.models.Book;
+
+import io.vertx.core.AbstractVerticle;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.mongo.MongoClient;
 /**
  * This verticle realizes CRUD functionality for the book entity. To
  * access these functionalities use the message 
  * defined in {@link com.botomo.data.CrudAddresses}
- * 
- * @author Patrick Hebner
  *
  */
 public class BookCrudVerticle extends AbstractVerticle {
@@ -32,7 +31,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 		/**
 		 * Consumer to get all books from the db
 		 */
-		vertx.eventBus().consumer(GET_ALL.message(), message -> {
+		vertx.eventBus().consumer(GET_ALL, message -> {
 			mongo.find(COLLECTION, new JsonObject(), result -> {
 				if (result.succeeded()) {
 					// Fetch all books from db
