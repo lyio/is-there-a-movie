@@ -13,9 +13,10 @@ public class MainVerticle extends AbstractVerticle {
 	public void start(Future<Void> startFuture) throws Exception {
 		// create router
 		Router router = Router.router(vertx);
-		// set router to website
+		// create Book handler 
 		BookHandler bookHandler = new BookHandler();
 		bookHandler.createData();
+		// create Routing
 		Routing routing = new Routing(router, bookHandler);
 		// create server
 		vertx
