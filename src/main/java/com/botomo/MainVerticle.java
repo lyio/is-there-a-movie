@@ -1,5 +1,6 @@
 package com.botomo;
 
+import com.botomo.handlers.BookHandler;
 import com.botomo.routes.Routing;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -13,7 +14,9 @@ public class MainVerticle extends AbstractVerticle {
 		// create router
 		Router router = Router.router(vertx);
 		// set router to website
-		Routing routing = new Routing(router);
+		BookHandler bookHandler = new BookHandler();
+		bookHandler.createData();
+		Routing routing = new Routing(router, bookHandler);
 		// create server
 		vertx
 			.createHttpServer()

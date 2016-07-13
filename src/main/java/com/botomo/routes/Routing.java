@@ -1,15 +1,21 @@
 package com.botomo.routes;
 
+import com.botomo.handlers.BookHandler;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 
 
 public class Routing {
 
+    public static final String API = "/api/v1/";
+
     private final Router _router;
 
-    public Routing(Router router) {
+    private final BookHandler bookHandler;
+
+    public Routing(Router router, BookHandler bookHandler) {
         this._router = router;
+        this.bookHandler = bookHandler;
     }
 
     /**
@@ -25,13 +31,7 @@ public class Routing {
         _router.route("/").handler(ctx -> ctx.response().sendFile("webroot/index.html"));
 
         // list of book2movie suggestions
-        _router.get("/api/suggestions").handler(rq -> {
-           String rsp = "list of suggestions";
-           rq.response().putHeader("Content-Length", Integer.toString(rsp.length()));
-           rq.response().setStatusCode(200);
-           rq.response().write(rsp);
-           rq.response().end();
-        });
+        _router.get(API + "books").handler(bookHandler::getAll);
 
         return _router;
     }
