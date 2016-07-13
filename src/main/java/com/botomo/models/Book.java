@@ -2,19 +2,29 @@ package com.botomo.models;
 
 import java.util.Date;
 
+import io.vertx.core.json.JsonObject;
+
 /**
  * Created by Thomas on 11.07.2016.
  */
 public class Book {
 
     private int id;
+    private String mongo_id;
     private String title;
     private String subtitle;
     private String author;
     private Date year;
     private int downs;
     private int ups;
+    
+    public Book() {	}
 
+    public Book(JsonObject json){
+    	this.mongo_id = json.getString("_id");
+    	this.title = json.getString("title");
+    }
+    
     public boolean search(String searchTerm) {
         return title.contains(searchTerm) || author.contains(searchTerm) || subtitle.contains(searchTerm);
     }
