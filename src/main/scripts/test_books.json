@@ -1,8 +1,17 @@
 {
 	"title": "Lorem Ipsum",
 	"subtitle": "Lorem Ipsum Sub",
-	"author": "Loras Ipsum",
-	"year":"",
+	"author": "Mr. Ipsum",
+	"year":"2013",
 	"ups": 2,
 	"downs": 12
 }
+{
+	"title": "Test Book",
+	"subtitle": "Just anouther test",
+	"author": "Mr. test",
+	"year":"1922",
+	"ups": 2222,
+	"downs": 122
+}
+
