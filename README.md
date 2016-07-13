@@ -12,10 +12,8 @@ Response body:
     "subtitle":"Lorem Ipsum Sub",
     "author":"Loras Ipsum",
     "year":"2003",
-    "votes":{
-      "up":2,
-      "down":12
-    }
+    "ups":2,
+    "downs":12
   },
   {
     ...
@@ -31,12 +29,23 @@ Request body:
     "subtitle":"Lorem Ipsum Sub",
     "author":"Loras Ipsum",
     "year":"2003",
-    "votes":{
-      "up":2,
-      "down":12
-    }
+    "ups":2,
+    "downs":12
   }
   ```
+
+  Response:
+  ```json
+    {
+      "id": "123",
+      "title":"Lorem Ipsum",
+      "subtitle":"Lorem Ipsum Sub",
+      "author":"Loras Ipsum",
+      "year":"2003",
+      "ups":2,
+      "downs":12
+    }
+    ```
 
 **POST api/v1/books/:id/upvote**
 
@@ -61,10 +70,8 @@ Response body:
     "subtitle":"Lorem Ipsum Sub",
     "author":"Loras Ipsum",
     "year":"2003",
-    "votes":{
-      "up":2,
-      "down":12
-    }
+    "ups":2,
+    "downs":12
   },
   {
     ...
