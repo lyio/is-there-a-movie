@@ -13,6 +13,7 @@ import com.botomo.models.Book;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 
 import io.vertx.ext.web.RoutingContext;
@@ -118,4 +119,18 @@ public class BookHandler {
 		JsonObject error = new JsonObject(body);
 		this.handleReply(context, error.getInteger("statusCode"), APP_JSON, body);
 	}
+
+    public void create(RoutingContext context) {
+        Book book = Json.decodeValue(context.getBodyAsString(), Book.class);
+
+        // Here db logic would need to take place
+        book.setUps(1);
+        book.setId("" + (Math.random() * 1000));
+        BookHandler.list.add(book);
+
+        context.response()
+                .setStatusCode(201)
+                .putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encode(book));
+    }
 }
