@@ -46,7 +46,7 @@ public class BookHandler {
      * formatted as json as response.
      * @param context
      */
-    public void getAll(RoutingContext context){
+    private void getAllBooks(RoutingContext context){
     	vertx.eventBus().send(
     			CrudAddresses.GET_ALL.message(),
     			null,
@@ -67,14 +67,27 @@ public class BookHandler {
     			});
     }
     
-	public void getAllBySearchTerm(RoutingContext context) {
+    /**
+     * Gets all books from the database concerning the passed search term.
+     * If the search term isn't provided all existing books will be returned to
+     * the client.
+     * @param context
+     */
+	public void getAll(RoutingContext context) {
         String searchTerm = context.request().getParam("search");
-        Stream<Book> responseList =
-                StringUtils.isNullOrEmpty(searchTerm)
-                        ? list.stream()
-                        : list.stream().filter(book -> book.search(searchTerm));
-        context.response()
-            .putHeader("content-type", "application/json; charset=utf-8")
-            .end(Json.encode(responseList.toArray()));
+        System.out.println("SEARCH: " + searchTerm);
+        // If search parameter is empty call getAllBooks to fetch all books from the db        
+        if(StringUtils.isNullOrEmpty(searchTerm)){
+        	this.getAllBooks(context);
+        }else {
+        	// If search parameter is not empty perform the search on the fake data
+        	Stream<Book> responseList =
+        			StringUtils.isNullOrEmpty(searchTerm)
+        			? list.stream()
+        					: list.stream().filter(book -> book.search(searchTerm));
+        			context.response()
+        			.putHeader("content-type", "application/json; charset=utf-8")
+        			.end(Json.encode(responseList.toArray()));
+        }
     }
 }
