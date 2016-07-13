@@ -45,7 +45,7 @@ Request body:
       "ups":2,
       "downs":12
     }
-    ```
+  ```
 
 **POST api/v1/books/:id/upvote**
 
