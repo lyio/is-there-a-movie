@@ -48,7 +48,8 @@ public class Routing {
         _router.route("/").handler(ctx -> ctx.response().sendFile("webroot/index.html"));
 
         // list of book2movie suggestions
-        _router.get(API + "books").handler(bookHandler::getAll);
+        _router.get(API + "books").handler(bookHandler::getAllBySearchTerm);
+        _router.get(API + "booksAll").handler(bookHandler::getAll);
         
         // TMP - Just for testing
         _router.get(API + "dbtest").handler(new TestHandler(vertx));

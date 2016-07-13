@@ -34,7 +34,7 @@ public class MainVerticle extends AbstractVerticle {
 		// create router
 		Router router = Router.router(vertx);
 		// create Book handler 
-		BookHandler bookHandler = new BookHandler();
+		BookHandler bookHandler = new BookHandler(vertx);
 		bookHandler.createData();
 		// create Routing
 		Routing routing = new Routing(router, bookHandler, vertx);

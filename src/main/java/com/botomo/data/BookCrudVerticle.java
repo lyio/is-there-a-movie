@@ -43,7 +43,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 					// Return the fetched books as json
 					message.reply(Json.encodePrettily(books));
 				} else {
-					message.reply(result.cause());
+					message.fail(0, result.cause().getMessage());
 				}
 			});
 		});
