@@ -38,6 +38,12 @@ public class Routing {
         _router.route(API + "books*").handler(BodyHandler.create());
         _router.post(API + "books").handler(bookHandler::create);
 
+        // upvote single books
+        _router.post(API + "books/:id/upvote").handler(bookHandler::upvote);
+
+        // downvote single books
+        _router.post(API + "books/:id/downvote").handler(bookHandler::downvote);
+
         return _router;
     }
 }

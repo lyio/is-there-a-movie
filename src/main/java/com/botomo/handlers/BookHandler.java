@@ -2,9 +2,7 @@ package com.botomo.handlers;
 
 import static com.botomo.routes.EventBusAddresses.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import com.botomo.StringUtils;
 import com.botomo.data.AsyncReply;
@@ -117,4 +115,34 @@ public class BookHandler {
 		JsonObject error = new JsonObject(body);
 		this.handleReply(context, error.getInteger("statusCode"), APP_JSON, body);
 	}
+
+    public void upvote(RoutingContext context) {
+        String bookId = (context.request().getParam("id"));
+
+        Optional<Book> result = list.stream().filter(b -> b.getId().equals(bookId)).findFirst();
+        result.ifPresent(b -> {
+            b.setUps(b.getUps() + 1);
+            context.response()
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encode(b));
+        });
+        if(!result.isPresent()) {
+            context.response().setStatusCode(404).end();
+        }
+    }
+
+    public void downvote(RoutingContext context) {
+        String bookId = context.request().getParam("id");
+
+        Optional<Book> result = list.stream().filter(b -> Objects.equals(b.getId(), bookId)).findFirst();
+        result.ifPresent(b -> {
+            b.setUps(b.getUps() - 1);
+            context.response()
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encode(b));
+        });
+        if(!result.isPresent()) {
+            context.response().setStatusCode(404).end();
+        }
+    }
 }
