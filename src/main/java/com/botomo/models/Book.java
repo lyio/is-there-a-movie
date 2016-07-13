@@ -9,8 +9,7 @@ import io.vertx.core.json.JsonObject;
  */
 public class Book {
 
-    private int id;
-    private String mongo_id;
+    private String id;
     private String title;
     private String subtitle;
     private String author;
@@ -21,7 +20,7 @@ public class Book {
     public Book() {	}
 
     public Book(JsonObject json){
-    	this.mongo_id = json.getJsonObject("_id").getString("$oid");
+    	this.id = json.getJsonObject("_id").getString("$oid");
     	this.title = json.getString("title");
     	this.subtitle = json.getString("subtitle");
     	this.author = json.getString("author");
@@ -33,11 +32,11 @@ public class Book {
     public boolean search(String searchTerm) {
         return title.contains(searchTerm) || author.contains(searchTerm) || subtitle.contains(searchTerm);
     }
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

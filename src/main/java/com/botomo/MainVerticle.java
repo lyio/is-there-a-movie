@@ -13,8 +13,8 @@ import io.vertx.ext.web.Router;
 @SuppressWarnings("unused")
 public class MainVerticle extends AbstractVerticle {
     
-	private static final String DB_NAME = "DBNAME";
-	private static final String DB_CONNECTION_STRING = "DBURL";
+	private static final String DB_NAME = "dbname";
+	private static final String DB_CONNECTION_STRING = "dburl";
 	private static final String PORT = "http.port";
 	
     @Override
