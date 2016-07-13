@@ -15,21 +15,13 @@ import io.vertx.ext.web.Router;
 @SuppressWarnings("unused")
 public class MainVerticle extends AbstractVerticle {
     
+	private static String DB_NAME = "DBNAME";
+	private static String DB_CONNECTION_STRING = "DBURL";
+	
     @Override
 	public void start(Future<Void> startFuture) throws Exception {
     	
-    	
-    	DeploymentOptions dbOpt = new DeploymentOptions().setConfig(config());
-    	
-    	// deploy book crud verticle
-    	vertx.deployVerticle(BookCrudVerticle.class.getName(), dbOpt, ar -> {
-    		if (ar.failed()){
-    			startFuture.fail(ar.cause());
-    		} else {
-    			// Replace this with some loggin framework
-    			System.out.println("Mongo DB Verticle successfully deployed");
-    		}
-    	});
+    	this.deployBookCrudVerticle(startFuture);
     	
 		// create router
 		Router router = Router.router(vertx);
@@ -50,4 +42,22 @@ public class MainVerticle extends AbstractVerticle {
 				}
 			});
 	}
+    
+    private void deployBookCrudVerticle(Future<Void> fut){
+    	JsonObject dbConf = new JsonObject()
+    			.put("db_name", System.getProperty(DB_NAME))
+    			.put("connection_string", System.getProperty(DB_CONNECTION_STRING));
+    	DeploymentOptions dbOpt = new DeploymentOptions().setConfig(dbConf);
+    	
+    	// deploy book crud verticle
+    	vertx.deployVerticle(BookCrudVerticle.class.getName(), dbOpt, ar -> {
+    		if (ar.failed()){
+    			System.out.println("Failed to deploy Book CRUD Verticle");
+    			fut.fail(ar.cause());
+    		} else {
+    			// Replace this with some loggin framework
+    			System.out.println("Book CRUD Verticle successfully deployed");
+    		}
+    	});
+    }
 }
