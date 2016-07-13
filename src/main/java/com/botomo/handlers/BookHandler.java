@@ -173,7 +173,7 @@ public class BookHandler {
 
         Optional<Book> result = list.stream().filter(b -> Objects.equals(b.getId(), bookId)).findFirst();
         result.ifPresent(b -> {
-            b.setUps(b.getUps() - 1);
+            b.setDowns(b.getDowns() + 1);
             context.response()
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encode(b));
