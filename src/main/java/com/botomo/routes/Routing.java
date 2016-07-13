@@ -1,7 +1,10 @@
 package com.botomo.routes;
 
 import com.botomo.handlers.BookHandler;
+
+import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 
 
@@ -16,6 +19,15 @@ public class Routing {
     public Routing(Router router, BookHandler bookHandler) {
         this._router = router;
         this.bookHandler = bookHandler;
+        
+        // enable CORS
+        this._router.route()
+        	.handler(CorsHandler.create("*")
+            	.allowedHeader("Accept")
+        		.allowedHeader("Content-Type")
+        		.allowedMethod(HttpMethod.GET)
+       			.allowedMethod(HttpMethod.POST)
+       			.allowedMethod(HttpMethod.OPTIONS));
     }
 
     /**
