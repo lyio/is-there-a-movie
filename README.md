@@ -12,10 +12,8 @@ Response body:
     "subtitle":"Lorem Ipsum Sub",
     "author":"Loras Ipsum",
     "year":"2003",
-    "votes":{
-      "up":2,
-      "down":12
-    }
+    "ups":2,
+    "downs":12
   },
   {
     ...
@@ -61,10 +59,8 @@ Response body:
     "subtitle":"Lorem Ipsum Sub",
     "author":"Loras Ipsum",
     "year":"2003",
-    "votes":{
-      "up":2,
-      "down":12
-    }
+    "ups":2,
+    "downs":12
   },
   {
     ...
