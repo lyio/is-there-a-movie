@@ -1,6 +1,5 @@
 package com.botomo.data;
 
-
 import static com.botomo.routes.EventBusAddresses.GET_ALL;
 import static com.botomo.routes.EventBusAddresses.SEARCH;
 
@@ -48,10 +47,9 @@ public class BookCrudVerticle extends AbstractVerticle {
 		});
 
 		/**
-		 * Consumer to get only searched books from the db.
-		 * The following fields of the book entity are considered for the search:
-		 * title, author, subtitle, year.
-		 * This method doesn't provide a full text search. 
+		 * Consumer to get only searched books from the db. The following fields
+		 * of the book entity are considered for the search: title, author,
+		 * subtitle, year. This method doesn't provide a full text search.
 		 * Instead it realizes a like-wise search.
 		 * 
 		 */
@@ -77,13 +75,17 @@ public class BookCrudVerticle extends AbstractVerticle {
 
 		JsonObject q = new JsonObject();
 
-		JsonArray a = new JsonArray();
-		a.add(new JsonObject().put("title", new JsonObject().put("$regex", pattern)));
-		a.add(new JsonObject().put("author", new JsonObject().put("$regex", pattern)));
-		a.add(new JsonObject().put("subtitle", new JsonObject().put("$regex", pattern)));
-		a.add(new JsonObject().put("year", new JsonObject().put("$regex", pattern)));
+		JsonObject patternWithOption = new JsonObject();
+		patternWithOption.put("$regex", pattern);
+		patternWithOption.put("$options", "i");
 
-		q.put("$or", a);
+		JsonArray searchFields = new JsonArray();
+		searchFields.add(new JsonObject().put("title", patternWithOption));
+		searchFields.add(new JsonObject().put("author", patternWithOption));
+		searchFields.add(new JsonObject().put("subtitle", patternWithOption));
+		searchFields.add(new JsonObject().put("year", patternWithOption));
+
+		q.put("$or", searchFields);
 
 		return q;
 	}
