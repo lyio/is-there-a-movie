@@ -1,18 +1,15 @@
 package com.botomo.data;
 
+
 import static com.botomo.routes.EventBusAddresses.GET_ALL;
 import static com.botomo.routes.EventBusAddresses.SEARCH;
-import static com.botomo.routes.EventBusAddresses.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.botomo.models.Book;
 
-import io.netty.util.internal.SystemPropertyUtil;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;

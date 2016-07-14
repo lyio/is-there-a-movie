@@ -1,7 +1,5 @@
 package com.botomo.models;
 
-import java.util.Date;
-
 import io.vertx.core.json.JsonObject;
 
 /**
