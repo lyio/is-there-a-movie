@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.botomo.StringUtils;
+import com.botomo.data.AsyncReply;
 import com.botomo.models.Book;
 
 import io.vertx.core.AsyncResult;
@@ -52,29 +53,76 @@ public class BookHandler {
     			GET_ALL,
     			null,
     			result -> {
-    				this.handleGetReply(result, context);
+    				AsyncReply ar = extractReply(result);
+    				if(ar.state()){
+    					this.handleGetReply(ar.payload(), context);
+    				}else {
+						this.handleDbError(
+								context,
+								ar.payload());
+					}
+    				
 
     			});
     }
+    
     
     private void getSearchedBooks(RoutingContext context, final String searchTerm){
     	vertx.eventBus().send(
     			SEARCH,
     			searchTerm,
     			result -> {
-    				this.handleGetReply(result, context);
+    				AsyncReply ar = extractReply(result);
+    				if(ar.state()){
+    					this.handleGetReply(ar.payload(), context);
+    				}else {
+						this.handleDbError(context, ar.payload());
+					}
     			});
     }
     
-    private void handleGetReply(
-    		AsyncResult<Message<Object>> result, 
-    		RoutingContext context){
+    private AsyncReply extractReply(AsyncResult<Message<Object>> result){
+    	String reply = (String)result.result().body();
+    	AsyncReply ar = new AsyncReply(reply);
+    	return ar;
+    }
+    
+    private void handleReply(
+    		RoutingContext context,
+    		int status,
+    		String contentType,
+    		String body){
+    	
     		// Handle successful database request
 			context
 				.response()
-				.setStatusCode(200)
-				.putHeader("content-type", APP_JSON)
-				.end((String)result.result().body());
+				.setStatusCode(status)
+				.putHeader("content-type", contentType)
+				.end(body);
+    }
+    
+    private void handleGetReply(
+    		String jsonResult, 
+    		RoutingContext context){
+    	
+    		// Handle successful database request
+    		this.handleReply(
+    				context,
+    				200,
+    				APP_JSON,
+    				jsonResult);
+    }
+    
+    private void handleDbError(
+    		RoutingContext context,
+    		String body){
+    	
+    		// Handle successful database request
+    		this.handleReply(
+    				context,
+    				500,
+    				APP_JSON,
+    				body);
     }
     
     /**

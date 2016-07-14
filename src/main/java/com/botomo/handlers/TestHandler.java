@@ -2,6 +2,7 @@ package com.botomo.handlers;
 
 import static com.botomo.routes.EventBusAddresses.*;
 
+import com.botomo.data.AsyncReply;
 import com.botomo.models.Book;
 
 import io.vertx.core.Handler;
@@ -27,7 +28,9 @@ public class TestHandler implements Handler<RoutingContext> {
 		b.setDowns(98);
 		System.out.println("TRY TO INSERT BOOK");
 		vertx.eventBus().send(ADD_ONE, b.toJson().encodePrettily(), result -> {
-			if((Boolean)(result.result().body()) == true){
+			AsyncReply ar = new AsyncReply((String)result.result().body());
+			System.out.println("PAYLOAD: " + ar.payload());
+			if(ar.state()){
 				ctx.response()
 				.setStatusCode(201)
 				.end();

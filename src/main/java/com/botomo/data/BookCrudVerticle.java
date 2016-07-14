@@ -1,6 +1,8 @@
 package com.botomo.data;
 
-import static com.botomo.routes.EventBusAddresses.*;
+import static com.botomo.routes.EventBusAddresses.ADD_ONE;
+import static com.botomo.routes.EventBusAddresses.GET_ALL;
+import static com.botomo.routes.EventBusAddresses.SEARCH;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,7 +10,6 @@ import java.util.stream.Collectors;
 import com.botomo.StringUtils;
 import com.botomo.models.Book;
 
-import io.netty.handler.codec.http.HttpContentEncoder.Result;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
@@ -37,13 +38,18 @@ public class BookCrudVerticle extends AbstractVerticle {
 		 */
 		vertx.eventBus().consumer(GET_ALL, message -> {
 			mongo.find(COLLECTION, new JsonObject(), result -> {
-				// Fetch all books from db
-				List<JsonObject> foundJsonObjects = result.result();
-				// Map JsonObjects to Book Objects
-				List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
-				System.out.println("books: " + books);
-				// Return the fetched books as json
-				message.reply(Json.encodePrettily(books));
+				if (result.succeeded()) {
+					// Fetch all books from db
+					List<JsonObject> foundJsonObjects = result.result();
+					// Map JsonObjects to Book Objects
+					List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
+					System.out.println("books: " + books);
+					// Return the fetched books as json
+					message.reply(new AsyncReply(true, Json.encodePrettily(books)).encode());
+				} else {
+					message.reply(new AsyncReply(false, result.cause().getMessage()).encode());
+					;
+				}
 			});
 		});
 
@@ -58,42 +64,44 @@ public class BookCrudVerticle extends AbstractVerticle {
 			final String searchTerm = (String) message.body();
 
 			mongo.find(COLLECTION, buildSearchQuery(searchTerm), result -> {
-				// Fetch all books from db
-				List<JsonObject> foundJsonObjects = result.result();
-				// Map JsonObjects to Book Objects
-				List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
-				System.out.println("books: " + books);
-				// Return the fetched books as json
-				message.reply(Json.encodePrettily(books));
+				if (result.succeeded()) {
+					// Fetch all books from db
+					List<JsonObject> foundJsonObjects = result.result();
+					// Map JsonObjects to Book Objects
+					List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
+					System.out.println("books: " + books);
+					// Return the fetched books as json
+					message.reply(new AsyncReply(true, Json.encodePrettily(books)).encode());
+				} else {
+					message.reply(new AsyncReply(false, result.cause().getMessage()).encode());
+				}
 			});
 		});
-		
+
 		/**
-		 * Consumer to add one book to the database. The book which
-		 * should be stored must be provided through the event bus message
-		 * as json formatted string. If no json string is provided or an 
-		 * error occurs during the processing the operation will reply with false.
-		 * Else if the operation will reply with true.
+		 * Consumer to add one book to the database. The book which should be
+		 * stored must be provided through the event bus message as json
+		 * formatted string. If no json string is provided or an error occurs
+		 * during the processing the operation will reply with false. Else if
+		 * the operation will reply with true.
 		 */
 		vertx.eventBus().consumer(ADD_ONE, message -> {
-			String bookJson = (String)message.body();
-			if(!StringUtils.isNullOrEmpty(bookJson)){
+			String bookJson = (String) message.body();
+			if (!StringUtils.isNullOrEmpty(bookJson)) {
 				Book book = Json.decodeValue(bookJson, Book.class);
-				mongo.insert(
-						COLLECTION,
-						book.toJson(), 
-						result -> {
-							if(result.succeeded()){
-								message.reply(true);
-							}else{
-								message.reply(false);
-							}
-						});
-			}else{
-				message.reply(false);
+				mongo.insert(COLLECTION, book.toJson(), result -> {
+					if (result.succeeded()) {
+						final String id = result.result();
+						book.setId(id);
+						message.reply(new AsyncReply(true, book.toJson().encodePrettily()).encode());
+					} else {
+						message.reply(new AsyncReply(false, result.cause().getMessage()).encode());
+					}
+				});
+			} else {
+				message.reply(new AsyncReply(false, "Insert failed").encode());
 			}
-			
-			
+
 		});
 	}
 
