@@ -32,7 +32,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 		mongo = MongoClient.createShared(vertx, config());
 
 		/**
-		 * Consumer to get all books from the db
+		 * Consumer to get all books from the db.
 		 */
 		vertx.eventBus().consumer(GET_ALL, message -> {
 			mongo.find(COLLECTION, new JsonObject(), result -> {
@@ -47,8 +47,8 @@ public class BookCrudVerticle extends AbstractVerticle {
 		});
 
 		/**
-		 * Consumer to get only search books from the db.
-		 * The following fields of the book entity are considerd for the search:
+		 * Consumer to get only searched books from the db.
+		 * The following fields of the book entity are considered for the search:
 		 * title, author, subtitle, year.
 		 * This method doesn't provide a full text search. 
 		 * Instead it realizes a like-wise search.
