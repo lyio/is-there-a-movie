@@ -1,5 +1,7 @@
 package com.botomo.models;
 
+import com.botomo.StringUtils;
+
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -18,7 +20,7 @@ public class Book {
     public Book() {	}
 
     public Book(JsonObject json){
-    	this.id = json.getJsonObject("_id").getString("$oid");
+    	this.id = json.getString("_id");
     	this.title = json.getString("title");
     	this.subtitle = json.getString("subtitle");
     	this.author = json.getString("author");
@@ -30,7 +32,29 @@ public class Book {
     public boolean search(String searchTerm) {
         return title.contains(searchTerm) || author.contains(searchTerm) || subtitle.contains(searchTerm);
     }
-    public String getId() {
+    
+    public JsonObject toJson(){
+    	JsonObject json = new JsonObject();
+    	json.put("title", this.title);
+    	json.put("subtitle", this.subtitle);
+    	json.put("author", this.author);
+    	json.put("year", this.year);
+    	json.put("ups", this.ups);
+    	json.put("downs", this.downs);
+    	if(!StringUtils.isNullOrEmpty(this.id)){
+    		json.put("_id", new JsonObject().put("$oid", this.id));
+    	}
+    	
+    	return json;
+    }
+    
+    @Override
+	public String toString() {
+		return "Book [id=" + id + ", title=" + title + ", subtitle=" + subtitle + ", author=" + author + ", year="
+				+ year + ", downs=" + downs + ", ups=" + ups + "]";
+	}
+
+	public String getId() {
         return id;
     }
 

@@ -1,13 +1,14 @@
 package com.botomo.data;
 
-import static com.botomo.routes.EventBusAddresses.GET_ALL;
-import static com.botomo.routes.EventBusAddresses.SEARCH;
+import static com.botomo.routes.EventBusAddresses.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.botomo.StringUtils;
 import com.botomo.models.Book;
 
+import io.netty.handler.codec.http.HttpContentEncoder.Result;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
@@ -65,6 +66,34 @@ public class BookCrudVerticle extends AbstractVerticle {
 				// Return the fetched books as json
 				message.reply(Json.encodePrettily(books));
 			});
+		});
+		
+		/**
+		 * Consumer to add one book to the database. The book which
+		 * should be stored must be provided through the event bus message
+		 * as json formatted string. If no json string is provided or an 
+		 * error occurs during the processing the operation will reply with false.
+		 * Else if the operation will reply with true.
+		 */
+		vertx.eventBus().consumer(ADD_ONE, message -> {
+			String bookJson = (String)message.body();
+			if(!StringUtils.isNullOrEmpty(bookJson)){
+				Book book = Json.decodeValue(bookJson, Book.class);
+				mongo.insert(
+						COLLECTION,
+						book.toJson(), 
+						result -> {
+							if(result.succeeded()){
+								message.reply(true);
+							}else{
+								message.reply(false);
+							}
+						});
+			}else{
+				message.reply(false);
+			}
+			
+			
 		});
 	}
 

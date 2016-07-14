@@ -1,4 +1,5 @@
 {
+	"_id": "57869b216dc71db38b5780e1",
 	"title": "Lorem Ipsum",
 	"subtitle": "Lorem Ipsum Sub",
 	"author": "Mr. Ipsum",
@@ -7,6 +8,7 @@
 	"downs": 12
 }
 {
+	"_id": "57869b216dc71db38b5780e2",
 	"title": "Test Book",
 	"subtitle": "Just anouther test",
 	"author": "Mr. test",
