@@ -1,7 +1,6 @@
 package com.botomo.handlers;
 
-import static com.botomo.routes.EventBusAddresses.GET_ALL;
-import static com.botomo.routes.EventBusAddresses.SEARCH;
+import static com.botomo.routes.EventBusAddresses.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,6 +12,8 @@ import com.botomo.models.Book;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 /**
@@ -53,6 +54,7 @@ public class BookHandler {
     			null,
     			result -> {
     				this.handleGetReply(result, context);
+
     			});
     }
     

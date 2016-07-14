@@ -9,5 +9,5 @@ public class EventBusAddresses {
 	public static final String ADD_ONE 		=	"botomo.db.addOne";
 	public static final String UP_VOTE 		=	"botomo.db.upVote"; 
 	public static final String DOWN_VOTE 	=	"botomo.db.downVote"; 
-	
+
 }
