@@ -27,9 +27,6 @@ public class Book {
     	this.ups = json.getInteger("ups");
     }
     
-    public boolean search(String searchTerm) {
-        return title.contains(searchTerm) || author.contains(searchTerm) || subtitle.contains(searchTerm);
-    }
     public String getId() {
         return id;
     }
