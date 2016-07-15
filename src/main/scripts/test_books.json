@@ -1,19 +1,64 @@
 {
-	"_id": "57869b216dc71db38b5780e1",
-	"title": "Lorem Ipsum",
-	"subtitle": "Lorem Ipsum Sub",
-	"author": "Mr. Ipsum",
-	"year":"2013",
-	"ups": 2,
-	"downs": 12
+	"title": "The Hunger Games",
+	"subtitle": "The Hunger Games, #1",
+	"author": "Suzanne Collins",
+	"year":"2008",
+	"ups": 4,
+	"downs": 36
 }
 {
-	"_id": "57869b216dc71db38b5780e2",
-	"title": "Test Book",
-	"subtitle": "Just anouther test",
-	"author": "Mr. test",
-	"year":"1922",
+	"title": "Harry Potter and the Sorcerer's Stone",
+	"subtitle": "Harry Potter, #1",
+	"author": "J.K. Rowling",
+	"year":"1997",
 	"ups": 2222,
 	"downs": 122
 }
-
+{
+	"title": "Harry Potter and the Chamber of Secrets",
+	"subtitle": "Harry Potter, #2",
+	"author": "J.K. Rowling",
+	"year":"1998",
+	"ups": 12,
+	"downs": 12
+}
+{
+	"title": "Harry Potter and the Prisoner of Azkaban",
+	"subtitle": "Harry Potter, #3",
+	"author": "J.K. Rowling",
+	"year":"1999",
+	"ups": 2,
+	"downs": 2122
+}
+{
+	"title": "Harry Potter and the Half-Blood Prince",
+	"subtitle": "Harry Potter, #6",
+	"author": "J.K. Rowling",
+	"year":"2005",
+	"ups": 123652,
+	"downs": 2122
+}
+{
+	"title": "Twilight",
+	"subtitle": "Twilight, #1",
+	"author": "Stephenie Meyer",
+	"year":"2005",
+	"ups": 326,
+	"downs": 162
+}
+{
+	"title": "The Fault in Our Stars",
+	"subtitle": "",
+	"author": "John Green",
+	"year":"2012",
+	"ups": 326,
+	"downs": 313
+}
+{
+	"title": "The Persecution and Assassination of Jean-Paul Marat as Performed by the Inmates of the Asylum of Charenton Under the Direction of the Marquis de Sade",
+	"subtitle": "",
+	"author": " Peter Weiss, Geoffrey Skelton",
+	"year":"2001",
+	"ups": 6,
+	"downs": 1
+}

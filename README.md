@@ -23,7 +23,7 @@ Navigate to src/main/scripts and run
 - Run the fat jar from console:
 
   ```shell
-  java -jar -ddbname="botomo" -ddburl="mongodb://localhost:27017" build/libs/botomo-1.0-SNAPSHOT-fat.jar
+  java -jar -Ddbname="botomo" -Ddburl="mongodb://localhost:27017" build/libs/botomo-1.0-SNAPSHOT-fat.jar
   ```
 
 API
