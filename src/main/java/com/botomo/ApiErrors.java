@@ -2,6 +2,14 @@ package com.botomo;
 
 import io.vertx.core.json.JsonObject;
 
+/**
+ * Class to provide a collection of api errors. The errors comprise
+ * a application related error code, a appropriate status code and 
+ * a human readable message. The error object cann be used to communicate
+ * application error to the front end through its toJsonString method.
+ * @author pode
+ *
+ */
 public enum ApiErrors {
 
 	DB000(500, "Critical database error occured"),
@@ -17,6 +25,10 @@ public enum ApiErrors {
 		this.msg = msg;
 	}
 	
+	/**
+	 * Provides a json representation of this error
+	 * @return
+	 */
 	public String toJsonString(){
 		
 		JsonObject json = new JsonObject();

@@ -37,7 +37,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 		mongo = MongoClient.createShared(vertx, config());
 
 		/**
-		 * Consumer to get all books from the db.
+		 * Consumer to get all books from the db. Returns a list of books as json.
 		 */
 		vertx.eventBus().consumer(GET_ALL, message -> {
 			mongo.find(COLLECTION, new JsonObject(), result -> {
@@ -107,44 +107,58 @@ public class BookCrudVerticle extends AbstractVerticle {
 		});
 		
 		/**
-		 * Consumer to up vote the provided book entry
+		 * Consumer to up vote the provided book entry. The operation requires the
+		 * id of the book which should be up voted and returns the book object as json
+		 * with the updated ups field.
 		 */
 		vertx.eventBus().consumer(UP_VOTE, msg -> {
-			String id = (String)msg.body();
-			if(StringUtils.isNullOrEmpty(id)){
-				msg.reply(new AsyncReply(false, DB002.toJsonString()));
-			}else{
-				mongo.find(COLLECTION, new JsonObject().put("_id", id), result -> {
-					List<JsonObject> jsonObjects = result.result();
-					if(jsonObjects.size() > 0){
-						// Get only the first book of the result set and extract the id
-						JsonObject book = jsonObjects.get(0);
-						int ups = book.getInteger("ups");
-						book.put("ups", ++ups);
-						mongo.update(
-								COLLECTION,
-								new JsonObject().put("_id", id),
-								new JsonObject().put("$set", new JsonObject().put("ups", ups)),
-								ar -> {
-									if(ar.succeeded()){
-										System.out.println("RESULT UPDATE: " + ar.result());
-										msg.reply(new AsyncReply(true, book.encodePrettily()).toJsonString());
-									}else{
-										System.out.println("RESULT UPDATE: " + ar.result());
-										msg.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
-									}
-								});
-						
-					}else {
-						msg.reply(new AsyncReply(false, DB001.toJsonString()).toJsonString());
-					}
-					
-				});
-			}
+			this.vote(msg, "ups");
+		});
+		
+		/**
+		 * Consumer to down vote the provided book entry. The operation requires the
+		 * id of the book which should be down voted and returns the book object as json
+		 * with the updated downs field.
+		 */
+		vertx.eventBus().consumer(DOWN_VOTE, msg -> {
+			this.vote(msg, "downs");
 		});
 	}
 	
-
+	private void vote(Message<Object> msg, String field){
+		String id = (String)msg.body();
+		if(StringUtils.isNullOrEmpty(id)){
+			msg.reply(new AsyncReply(false, DB002.toJsonString()));
+		}else{
+			mongo.find(COLLECTION, new JsonObject().put("_id", id), result -> {
+				List<JsonObject> jsonObjects = result.result();
+				if(jsonObjects.size() > 0){
+					// Get only the first book of the result set and extract the id
+					JsonObject book = jsonObjects.get(0);
+					int ups = book.getInteger(field);
+					book.put(field, ++ups);
+					mongo.update(
+							COLLECTION,
+							new JsonObject().put("_id", id),
+							new JsonObject().put("$set", new JsonObject().put(field, ups)),
+							ar -> {
+								if(ar.succeeded()){
+									System.out.println("RESULT UPDATE: " + ar.result());
+									msg.reply(new AsyncReply(true, book.encodePrettily()).toJsonString());
+								}else{
+									System.out.println("RESULT UPDATE: " + ar.result());
+									msg.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
+								}
+							});
+					
+				}else {
+					msg.reply(new AsyncReply(false, DB001.toJsonString()).toJsonString());
+				}
+				
+			});
+		}
+	}
+	
 	private JsonObject buildSearchQuery(final String searchTerm) {
 
 		// Build the json query

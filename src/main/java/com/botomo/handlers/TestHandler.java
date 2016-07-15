@@ -27,7 +27,7 @@ public class TestHandler implements Handler<RoutingContext> {
 		b.setUps(12);
 		b.setDowns(98);
 		System.out.println("TRY TO INSERT BOOK");
-		vertx.eventBus().send(UP_VOTE, "57869b216dc71db38b5780e1", result -> {
+		vertx.eventBus().send(DOWN_VOTE, "57869b216dc71db38b5780e1", result -> {
 			AsyncReply ar = new AsyncReply((String)result.result().body());
 			System.out.println("PAYLOAD: " + ar.payload());
 			if(ar.state()){

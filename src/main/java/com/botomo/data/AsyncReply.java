@@ -1,7 +1,5 @@
 package com.botomo.data;
 
-import com.botomo.models.Book;
-
 import io.vertx.core.json.JsonObject;
 
 /**

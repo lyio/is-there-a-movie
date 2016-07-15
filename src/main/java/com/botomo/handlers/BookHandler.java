@@ -108,7 +108,6 @@ public class BookHandler {
     		String jsonResult, 
     		RoutingContext context){
     	
-    		// Handle successful database request
     		this.handleReply(
     				context,
     				200,
@@ -120,8 +119,8 @@ public class BookHandler {
     		RoutingContext context,
     		String body){
     	
+    		// Get the status code from the api error object which is provided as json string
     		JsonObject error = new JsonObject(body);
-    		// Handle successful database request
     		this.handleReply(
     				context,
     				error.getInteger("statusCode"),
