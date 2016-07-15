@@ -27,21 +27,26 @@ public class TestHandler implements Handler<RoutingContext> {
 		b.setUps(12);
 		b.setDowns(98);
 		System.out.println("TRY TO INSERT BOOK");
-		vertx.eventBus().send(ADD_ONE, b.toJson().encodePrettily(), result -> {
+		vertx.eventBus().send(UP_VOTE, "57869b216dc71db38b5780e1", result -> {
 			AsyncReply ar = new AsyncReply((String)result.result().body());
 			System.out.println("PAYLOAD: " + ar.payload());
 			if(ar.state()){
 				ctx.response()
-				.setStatusCode(201)
-				.end();
+				.setStatusCode(200)
+				.end(ar.payload());
 			}else{
 				ctx.response()
 				.setStatusCode(500)
-				.end();
+				.end(ar.payload());
 			}
 		});
-//		vertx.eventBus().send(ADD_ONE, "", result -> {
-//			if((Boolean)(result.result().body()) == true){
+//		
+		// Positiv result of add one
+//		vertx.eventBus().send(ADD_ONE, b.toJson().encodePrettily(), result -> {
+//			AsyncReply ar = new AsyncReply((String)result.result().body());
+//			System.out.println("PAYLOAD: " + ar.payload());
+//			
+//			if(ar.state()){
 //				ctx.response()
 //				.setStatusCode(201)
 //				.end();
@@ -51,6 +56,20 @@ public class TestHandler implements Handler<RoutingContext> {
 //				.end();
 //			}
 //		});
-
+		//Negative result of add one
+//		vertx.eventBus().send(ADD_ONE, "", result -> {
+//			AsyncReply ar = new AsyncReply((String)result.result().body());
+//			System.out.println("PAYLOAD: " + ar.payload());
+//			if(ar.state()){
+//				ctx.response()
+//				.setStatusCode(200)
+//				.end(ar.payload());
+//			}else{
+//				ctx.response()
+//				.setStatusCode(500)
+//				.end(ar.payload());
+//			}
+//		});
+//
 	}
 }

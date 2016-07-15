@@ -1,16 +1,19 @@
 package com.botomo.data;
 
-import static com.botomo.routes.EventBusAddresses.ADD_ONE;
-import static com.botomo.routes.EventBusAddresses.GET_ALL;
-import static com.botomo.routes.EventBusAddresses.SEARCH;
+import static com.botomo.routes.EventBusAddresses.*;
+import static com.botomo.ApiErrors.*;
 
 import java.util.List;
+import java.util.function.DoubleBinaryOperator;
 import java.util.stream.Collectors;
 
 import com.botomo.StringUtils;
 import com.botomo.models.Book;
 
+import io.netty.handler.codec.http.HttpContentEncoder.Result;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -45,10 +48,9 @@ public class BookCrudVerticle extends AbstractVerticle {
 					List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
 					System.out.println("books: " + books);
 					// Return the fetched books as json
-					message.reply(new AsyncReply(true, Json.encodePrettily(books)).encode());
+					message.reply(new AsyncReply(true, Json.encodePrettily(books)).toJsonString());
 				} else {
-					message.reply(new AsyncReply(false, result.cause().getMessage()).encode());
-					;
+					message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
 				}
 			});
 		});
@@ -71,9 +73,9 @@ public class BookCrudVerticle extends AbstractVerticle {
 					List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
 					System.out.println("books: " + books);
 					// Return the fetched books as json
-					message.reply(new AsyncReply(true, Json.encodePrettily(books)).encode());
+					message.reply(new AsyncReply(true, Json.encodePrettily(books)).toJsonString());
 				} else {
-					message.reply(new AsyncReply(false, result.cause().getMessage()).encode());
+					message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
 				}
 			});
 		});
@@ -93,17 +95,55 @@ public class BookCrudVerticle extends AbstractVerticle {
 					if (result.succeeded()) {
 						final String id = result.result();
 						book.setId(id);
-						message.reply(new AsyncReply(true, book.toJson().encodePrettily()).encode());
+						message.reply(new AsyncReply(true, book.toJson().encodePrettily()).toJsonString());
 					} else {
-						message.reply(new AsyncReply(false, result.cause().getMessage()).encode());
+						message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
 					}
 				});
 			} else {
-				message.reply(new AsyncReply(false, "Insert failed").encode());
+				message.reply(new AsyncReply(false, DB003.toJsonString()).toJsonString());
 			}
 
 		});
+		
+		/**
+		 * Consumer to up vote the provided book entry
+		 */
+		vertx.eventBus().consumer(UP_VOTE, msg -> {
+			String id = (String)msg.body();
+			if(StringUtils.isNullOrEmpty(id)){
+				msg.reply(new AsyncReply(false, DB002.toJsonString()));
+			}else{
+				mongo.find(COLLECTION, new JsonObject().put("_id", id), result -> {
+					List<JsonObject> jsonObjects = result.result();
+					if(jsonObjects.size() > 0){
+						// Get only the first book of the result set and extract the id
+						JsonObject book = jsonObjects.get(0);
+						int ups = book.getInteger("ups");
+						book.put("ups", ++ups);
+						mongo.update(
+								COLLECTION,
+								new JsonObject().put("_id", id),
+								new JsonObject().put("$set", new JsonObject().put("ups", ups)),
+								ar -> {
+									if(ar.succeeded()){
+										System.out.println("RESULT UPDATE: " + ar.result());
+										msg.reply(new AsyncReply(true, book.encodePrettily()).toJsonString());
+									}else{
+										System.out.println("RESULT UPDATE: " + ar.result());
+										msg.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
+									}
+								});
+						
+					}else {
+						msg.reply(new AsyncReply(false, DB001.toJsonString()).toJsonString());
+					}
+					
+				});
+			}
+		});
 	}
+	
 
 	private JsonObject buildSearchQuery(final String searchTerm) {
 

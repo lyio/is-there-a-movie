@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.botomo.ApiErrors;
 import com.botomo.StringUtils;
 import com.botomo.data.AsyncReply;
 import com.botomo.models.Book;
@@ -14,6 +15,8 @@ import com.botomo.models.Book;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 /**
@@ -87,7 +90,7 @@ public class BookHandler {
     	return ar;
     }
     
-    private void handleReply(
+    public void handleReply(
     		RoutingContext context,
     		int status,
     		String contentType,
@@ -101,7 +104,7 @@ public class BookHandler {
 				.end(body);
     }
     
-    private void handleGetReply(
+    public void handleGetReply(
     		String jsonResult, 
     		RoutingContext context){
     	
@@ -113,14 +116,15 @@ public class BookHandler {
     				jsonResult);
     }
     
-    private void handleDbError(
+    public void handleDbError(
     		RoutingContext context,
     		String body){
     	
+    		JsonObject error = new JsonObject(body);
     		// Handle successful database request
     		this.handleReply(
     				context,
-    				500,
+    				error.getInteger("statusCode"),
     				APP_JSON,
     				body);
     }

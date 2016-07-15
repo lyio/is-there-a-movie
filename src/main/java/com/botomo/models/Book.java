@@ -29,10 +29,22 @@ public class Book {
     	this.ups = json.getInteger("ups");
     }
     
+    /**
+     * Checks if the provided term matches the title, author or subtitle field
+     * of this object.
+     * @param searchTerm The term to search for
+     * @return true if the term matches else false
+     */
     public boolean search(String searchTerm) {
         return title.contains(searchTerm) || author.contains(searchTerm) || subtitle.contains(searchTerm);
     }
     
+    /**
+     * Converts this objcet to a object of type JsonObject.
+     * The id is only set if it's not set yet. Else the id field
+     * should be populated by the database.
+     * @return A JsonObject object representing this object.
+     */
     public JsonObject toJson(){
     	JsonObject json = new JsonObject();
     	json.put("title", this.title);

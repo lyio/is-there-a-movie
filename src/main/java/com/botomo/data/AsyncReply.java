@@ -8,7 +8,6 @@ import io.vertx.core.json.JsonObject;
  * Transfer object to reply messages from a verticle. Contains a state
  * which represents if the requested operation was successful or not. The
  * payload contains the content of the reply as String.
- * @author pode
  *
  */
 public class AsyncReply{
@@ -36,22 +35,16 @@ public class AsyncReply{
 		return payload;
 	}
 	
-	public String encode(){
+	/**
+	 * Converts this object to a json String representation to enable
+	 * the transportation over the event bus.
+	 * @return A json formatted String representing this object.
+	 */
+	public String toJsonString(){
 		JsonObject json = new JsonObject();
 		json.put("state", state);
 		json.put("payload", payload);
 		
 		return json.encodePrettily();
-	}
-
-	public static void main(String[] args) {
-		Book b = new Book();
-		b.setTitle("TEST title");
-		
-		AsyncReply ar = new AsyncReply(true, b.toJson().encodePrettily());
-		String arJson = ar.encode();
-		System.out.println(arJson);
-		AsyncReply ar2 = new AsyncReply(arJson);
-		System.out.println(ar2);
 	}
 }
