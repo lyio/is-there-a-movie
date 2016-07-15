@@ -24,10 +24,16 @@ public class MainVerticle extends AbstractVerticle {
 			.requestHandler(routing.register()::accept)
 			.listen(config().getInteger("http.port", 8080), result -> {
 				if (result.succeeded()) {
+					System.out.println("Main Verticle started");
 					startFuture.complete();
 				} else {
 					startFuture.fail(result.cause());
 				}
 			});
 	}
+    
+    @Override
+    public void stop() throws Exception {
+    	System.out.println("Main Verticle stoped");
+    }
 }
