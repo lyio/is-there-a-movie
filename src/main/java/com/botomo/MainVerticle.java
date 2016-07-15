@@ -12,11 +12,12 @@ import io.vertx.ext.web.Router;
 
 @SuppressWarnings("unused")
 public class MainVerticle extends AbstractVerticle {
-    
 	private static final String DB_NAME = "dbname";
 	private static final String DB_CONNECTION_STRING = "dburl";
 	private static final String PORT = "http.port";
 	
+    private enum Config { port }
+
     @Override
 	public void start(Future<Void> startFuture) throws Exception {
     	
@@ -33,7 +34,7 @@ public class MainVerticle extends AbstractVerticle {
 		vertx
 			.createHttpServer()
 			.requestHandler(routing.register()::accept)
-			.listen(config().getInteger(PORT, 8080), result -> {
+			.listen(Integer.getInteger(Config.port.name(), 8080), result -> {
 				if (result.succeeded()) {
 					startFuture.complete();
 				} else {
