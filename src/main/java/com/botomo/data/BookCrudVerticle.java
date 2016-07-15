@@ -1,14 +1,7 @@
 package com.botomo.data;
 
-import static com.botomo.ApiErrors.DB000;
-import static com.botomo.ApiErrors.DB001;
-import static com.botomo.ApiErrors.DB002;
-import static com.botomo.ApiErrors.DB003;
-import static com.botomo.routes.EventBusAddresses.ADD_ONE;
-import static com.botomo.routes.EventBusAddresses.DOWN_VOTE;
-import static com.botomo.routes.EventBusAddresses.GET_ALL;
-import static com.botomo.routes.EventBusAddresses.SEARCH;
-import static com.botomo.routes.EventBusAddresses.UP_VOTE;
+import static com.botomo.ApiErrors.*;
+import static com.botomo.routes.EventBusAddresses.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +10,7 @@ import com.botomo.StringUtils;
 import com.botomo.models.Book;
 
 import io.vertx.core.AbstractVerticle;
+
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
