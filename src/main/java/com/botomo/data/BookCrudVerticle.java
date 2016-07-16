@@ -176,7 +176,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 			});
 		}
 	}
-	
+
 	private JsonObject buildSearchQuery(final String searchTerm) {
 
 		// Build the json query
