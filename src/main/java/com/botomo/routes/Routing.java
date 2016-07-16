@@ -1,9 +1,7 @@
 package com.botomo.routes;
 
 import com.botomo.handlers.BookHandler;
-import com.botomo.handlers.TestHandler;
 
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -16,14 +14,12 @@ public class Routing {
 
     private final Router _router;
     
-    private final Vertx vertx;
 
     private final BookHandler bookHandler;
 
-    public Routing(Router router, BookHandler bookHandler, Vertx vertx) {
+    public Routing(Router router, BookHandler bookHandler) {
         this._router = router;
         this.bookHandler = bookHandler;
-        this.vertx = vertx;
         
         // enable CORS
         this._router.route()
@@ -49,9 +45,6 @@ public class Routing {
 
         // list of book2movie suggestions
         _router.get(API + "books").handler(bookHandler::getAll);
-        
-        // TMP - Just for testing
-        _router.get(API + "dbtest").handler(new TestHandler(vertx));
 
         return _router;
     }

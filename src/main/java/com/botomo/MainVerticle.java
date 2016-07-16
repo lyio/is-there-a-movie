@@ -10,7 +10,6 @@ import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 
-@SuppressWarnings("unused")
 public class MainVerticle extends AbstractVerticle {
     
 	private static final String DB_NAME = "dbname";
@@ -28,7 +27,7 @@ public class MainVerticle extends AbstractVerticle {
 		BookHandler bookHandler = new BookHandler(vertx);
 		bookHandler.createData();
 		// create Routing
-		Routing routing = new Routing(router, bookHandler, vertx);
+		Routing routing = new Routing(router, bookHandler);
 		// create server
 		vertx
 			.createHttpServer()
