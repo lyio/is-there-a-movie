@@ -28,10 +28,6 @@ shadowJar {
     mergeServiceFiles {
         include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
     }
-
-    into 'webroot', {
-        from 'src/main/webroot'
-    }
 }
 
 task wrapper(type: Wrapper) {
