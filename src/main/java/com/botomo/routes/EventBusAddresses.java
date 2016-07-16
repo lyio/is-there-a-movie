@@ -3,7 +3,6 @@ package com.botomo.routes;
 /**
  * A collection of constants which comprises the addresses which are used to
  * communicate via the event bus
- * @author pode
  *
  */
 public class EventBusAddresses {

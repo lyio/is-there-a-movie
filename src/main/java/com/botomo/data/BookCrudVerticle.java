@@ -10,7 +10,7 @@ import com.botomo.StringUtils;
 import com.botomo.models.Book;
 
 import io.vertx.core.AbstractVerticle;
-
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
@@ -20,7 +20,7 @@ import io.vertx.ext.mongo.MongoClient;
 /**
  * This verticle realizes CRUD functionality for the book entity. To access
  * these functionalities use the message defined in
- * {@link com.botomo.data.CrudAddresses}
+ * {@link com.botomo.data.EventBusAddresses}
  *
  */
 public class BookCrudVerticle extends AbstractVerticle {
@@ -37,6 +37,42 @@ public class BookCrudVerticle extends AbstractVerticle {
 		/**
 		 * Consumer to get all books from the db. Returns a list of books as json.
 		 */
+		this.registerFindAll(vertx);
+
+		/**
+		 * Consumer to get only searched books from the db. The following fields
+		 * of the book entity are considered for the search: title, author,
+		 * subtitle, year. This method doesn't provide a full text search.
+		 * Instead it realizes a like-wise search.
+		 * 
+		 */
+		this.registerSearch(vertx);
+
+		/**
+		 * Consumer to add one book to the database. The book which should be
+		 * stored must be provided through the event bus message as json
+		 * formatted string. If no json string is provided or an error occurs
+		 * during the processing the operation will reply with false. Else if
+		 * the operation will reply with true.
+		 */
+		this.registerAddOne(vertx);
+		
+		/**
+		 * Consumer to up vote the provided book entry. The operation requires the
+		 * id of the book which should be up voted and returns the book object as json
+		 * with the updated ups field.
+		 */
+		this.registerUpVote(vertx);
+		
+		/**
+		 * Consumer to down vote the provided book entry. The operation requires the
+		 * id of the book which should be down voted and returns the book object as json
+		 * with the updated downs field.
+		 */
+		this.registerDownVote(vertx);
+	}
+	
+	private void registerFindAll(Vertx vertx){
 		vertx.eventBus().consumer(GET_ALL, message -> {
 			mongo.find(COLLECTION, new JsonObject(), result -> {
 				if (result.succeeded()) {
@@ -52,14 +88,9 @@ public class BookCrudVerticle extends AbstractVerticle {
 				}
 			});
 		});
-
-		/**
-		 * Consumer to get only searched books from the db. The following fields
-		 * of the book entity are considered for the search: title, author,
-		 * subtitle, year. This method doesn't provide a full text search.
-		 * Instead it realizes a like-wise search.
-		 * 
-		 */
+	}
+	
+	private void registerSearch(Vertx vertx){
 		vertx.eventBus().consumer(SEARCH, message -> {
 			final String searchTerm = (String) message.body();
 
@@ -77,14 +108,21 @@ public class BookCrudVerticle extends AbstractVerticle {
 				}
 			});
 		});
-
-		/**
-		 * Consumer to add one book to the database. The book which should be
-		 * stored must be provided through the event bus message as json
-		 * formatted string. If no json string is provided or an error occurs
-		 * during the processing the operation will reply with false. Else if
-		 * the operation will reply with true.
-		 */
+	}
+	
+	private void registerUpVote(Vertx vertx){
+		vertx.eventBus().consumer(UP_VOTE, msg -> {
+			this.vote(msg, "ups");
+		});
+	}
+	
+	private void registerDownVote(Vertx vertx){
+		vertx.eventBus().consumer(DOWN_VOTE, msg -> {
+			this.vote(msg, "downs");
+		});
+	}
+	
+	private void registerAddOne(Vertx vertx){
 		vertx.eventBus().consumer(ADD_ONE, message -> {
 			String bookJson = (String) message.body();
 			if (!StringUtils.isNullOrEmpty(bookJson)) {
@@ -102,24 +140,6 @@ public class BookCrudVerticle extends AbstractVerticle {
 				message.reply(new AsyncReply(false, DB003.toJsonString()).toJsonString());
 			}
 
-		});
-		
-		/**
-		 * Consumer to up vote the provided book entry. The operation requires the
-		 * id of the book which should be up voted and returns the book object as json
-		 * with the updated ups field.
-		 */
-		vertx.eventBus().consumer(UP_VOTE, msg -> {
-			this.vote(msg, "ups");
-		});
-		
-		/**
-		 * Consumer to down vote the provided book entry. The operation requires the
-		 * id of the book which should be down voted and returns the book object as json
-		 * with the updated downs field.
-		 */
-		vertx.eventBus().consumer(DOWN_VOTE, msg -> {
-			this.vote(msg, "downs");
 		});
 	}
 	
