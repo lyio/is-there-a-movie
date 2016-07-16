@@ -17,7 +17,7 @@ import io.vertx.ext.mongo.MongoClient;
 /**
  * This verticle realizes CRUD functionality for the book entity. To access
  * these functionalities use the message defined in
- * {@link com.botomo.data.CrudAddresses}
+ * {@link com.botomo.routes.EventBusAddresses}
  *
  */
 public class BookCrudVerticle extends AbstractVerticle {

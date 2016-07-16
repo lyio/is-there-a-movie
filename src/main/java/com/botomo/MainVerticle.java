@@ -12,11 +12,8 @@ import io.vertx.ext.web.Router;
 
 @SuppressWarnings("unused")
 public class MainVerticle extends AbstractVerticle {
-	private static final String DB_NAME = "dbname";
-	private static final String DB_CONNECTION_STRING = "dburl";
-	private static final String PORT = "http.port";
-	
-    private enum Config { port }
+
+    private enum Config { port, dbname, dburl }
 
     @Override
 	public void start(Future<Void> startFuture) throws Exception {
@@ -45,8 +42,8 @@ public class MainVerticle extends AbstractVerticle {
     
     private void deployBookCrudVerticle(Future<Void> fut){
     	JsonObject dbConf = new JsonObject()
-    			.put("db_name", System.getProperty(DB_NAME))
-    			.put("connection_string", System.getProperty(DB_CONNECTION_STRING));
+    			.put("db_name", System.getProperty(Config.dbname.name()))
+    			.put("connection_string", System.getProperty(Config.dburl.name()));
     	DeploymentOptions dbOpt = new DeploymentOptions().setConfig(dbConf);
     	
     	// deploy book crud verticle
