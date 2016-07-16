@@ -1,5 +1,31 @@
 # is-there-a-movie
 
+GENERAL
+=======
+
+**System Properties**
+
+- dbname: "botomo",
+- dburl:  "mongodb://localhost:27017" 
+
+**Run the application**
+
+- Start your local Mongo DB instance
+
+- Create some test data (This also creates the database and collection):
+
+Navigate to src/main/scripts and run
+
+  ```shell
+  ./import_test_data_to_mongo.sh
+  ```
+
+- Run the fat jar from console:
+
+  ```shell
+  java -jar -Ddbname="botomo" -Ddburl="mongodb://localhost:27017" build/libs/botomo-1.0-SNAPSHOT-fat.jar
+  ```
+
 API
 ===
 **GET api/v1/books**

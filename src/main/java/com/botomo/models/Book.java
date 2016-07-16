@@ -1,28 +1,37 @@
 package com.botomo.models;
 
-import java.util.Date;
+import io.vertx.core.json.JsonObject;
 
 /**
  * Created by Thomas on 11.07.2016.
  */
 public class Book {
 
-    private int id;
+    private String id;
     private String title;
     private String subtitle;
     private String author;
-    private Date year;
+    private String year;
     private int downs;
     private int ups;
+    
+    public Book() {	}
 
-    public boolean search(String searchTerm) {
-        return title.contains(searchTerm) || author.contains(searchTerm) || subtitle.contains(searchTerm);
+    public Book(JsonObject json){
+    	this.id = json.getJsonObject("_id").getString("$oid");
+    	this.title = json.getString("title");
+    	this.subtitle = json.getString("subtitle");
+    	this.author = json.getString("author");
+    	this.year = json.getString("year");
+    	this.downs = json.getInteger("downs");
+    	this.ups = json.getInteger("ups");
     }
-    public int getId() {
+    
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -50,11 +59,11 @@ public class Book {
         this.author = author;
     }
 
-    public Date getYear() {
+    public String getYear() {
         return year;
     }
 
-    public void setYear(Date year) {
+    public void setYear(String year) {
         this.year = year;
     }
 
