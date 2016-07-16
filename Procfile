@@ -1,1 +1,1 @@
-web java -jar -Dport=$PORT -Ddbname="botomo" -Ddburl=$MONGODB_URI $JAVA_OPTS build/libs/botomo-1.0-SNAPSHOT-fat.jar
+web java -jar -Dport=$PORT -Ddbname="heroku_6jx95rwg" -Ddburl=$MONGODB_URI $JAVA_OPTS build/libs/botomo-1.0-SNAPSHOT-fat.jar
