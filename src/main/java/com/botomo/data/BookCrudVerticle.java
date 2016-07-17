@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.botomo.models.Book;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -26,7 +27,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 	private MongoClient mongo = null;
 
 	@Override
-	public void start() throws Exception {
+	public void start(Future<Void> fut) throws Exception {
 
 		// Initialize mongo client
 		mongo = MongoClient.createShared(vertx, config());
@@ -66,6 +67,9 @@ public class BookCrudVerticle extends AbstractVerticle {
 				message.reply(Json.encodePrettily(books));
 			});
 		});
+		
+		fut.complete();
+		
 	}
 
 	private JsonObject buildSearchQuery(final String searchTerm) {
