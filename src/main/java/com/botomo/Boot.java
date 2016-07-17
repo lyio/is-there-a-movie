@@ -12,7 +12,7 @@ public class Boot {
 				System.out.println("Depoyment faild");
 				vertx.close();
 			}else {
-				System.out.println("Verticle deployed");
+				System.out.println("MainVerticle successfully deployed");
 			}
 		});
 		
