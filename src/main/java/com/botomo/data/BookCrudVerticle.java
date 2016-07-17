@@ -1,15 +1,18 @@
 package com.botomo.data;
 
-import static com.botomo.routes.EventBusAddresses.GET_ALL;
-import static com.botomo.routes.EventBusAddresses.SEARCH;
+import static com.botomo.ApiErrors.*;
+import static com.botomo.routes.EventBusAddresses.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.botomo.StringUtils;
 import com.botomo.models.Book;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -18,7 +21,7 @@ import io.vertx.ext.mongo.MongoClient;
 /**
  * This verticle realizes CRUD functionality for the book entity. To access
  * these functionalities use the message defined in
- * {@link com.botomo.data.CrudAddresses}
+ * {@link com.botomo.data.EventBusAddresses}
  *
  */
 public class BookCrudVerticle extends AbstractVerticle {
@@ -33,19 +36,9 @@ public class BookCrudVerticle extends AbstractVerticle {
 		mongo = MongoClient.createShared(vertx, config());
 
 		/**
-		 * Consumer to get all books from the db.
+		 * Consumer to get all books from the db. Returns a list of books as json.
 		 */
-		vertx.eventBus().consumer(GET_ALL, message -> {
-			mongo.find(COLLECTION, new JsonObject(), result -> {
-				// Fetch all books from db
-				List<JsonObject> foundJsonObjects = result.result();
-				// Map JsonObjects to Book Objects
-				List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
-				System.out.println("books: " + books);
-				// Return the fetched books as json
-				message.reply(Json.encodePrettily(books));
-			});
-		});
+		this.registerFindAll(vertx);
 
 		/**
 		 * Consumer to get only searched books from the db. The following fields
@@ -54,22 +47,138 @@ public class BookCrudVerticle extends AbstractVerticle {
 		 * Instead it realizes a like-wise search.
 		 * 
 		 */
+		this.registerSearch(vertx);
+
+		/**
+		 * Consumer to add one book to the database. The book which should be
+		 * stored must be provided through the event bus message as json
+		 * formatted string. If no json string is provided or an error occurs
+		 * during the processing the operation will reply with false. Else if
+		 * the operation will reply with true.
+		 */
+		this.registerAddOne(vertx);
+		
+		/**
+		 * Consumer to up vote the provided book entry. The operation requires the
+		 * id of the book which should be up voted and returns the book object as json
+		 * with the updated ups field.
+		 */
+		this.registerUpVote(vertx);
+		
+		/**
+		 * Consumer to down vote the provided book entry. The operation requires the
+		 * id of the book which should be down voted and returns the book object as json
+		 * with the updated downs field.
+		 */
+		this.registerDownVote(vertx);
+	}
+	
+	private void registerFindAll(Vertx vertx){
+		vertx.eventBus().consumer(GET_ALL, message -> {
+			mongo.find(COLLECTION, new JsonObject(), result -> {
+				if (result.succeeded()) {
+					// Fetch all books from db
+					List<JsonObject> foundJsonObjects = result.result();
+					// Map JsonObjects to Book Objects
+					List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
+					System.out.println("books: " + books);
+					// Return the fetched books as json
+					message.reply(new AsyncReply(true, Json.encodePrettily(books)).toJsonString());
+				} else {
+					message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
+				}
+			});
+		});
+	}
+	
+	private void registerSearch(Vertx vertx){
 		vertx.eventBus().consumer(SEARCH, message -> {
 			final String searchTerm = (String) message.body();
 
 			mongo.find(COLLECTION, buildSearchQuery(searchTerm), result -> {
-				// Fetch all books from db
-				List<JsonObject> foundJsonObjects = result.result();
-				// Map JsonObjects to Book Objects
-				List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
-				System.out.println("books: " + books);
-				// Return the fetched books as json
-				message.reply(Json.encodePrettily(books));
+				if (result.succeeded()) {
+					// Fetch all books from db
+					List<JsonObject> foundJsonObjects = result.result();
+					// Map JsonObjects to Book Objects
+					List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
+					System.out.println("books: " + books);
+					// Return the fetched books as json
+					message.reply(new AsyncReply(true, Json.encodePrettily(books)).toJsonString());
+				} else {
+					message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
+				}
 			});
 		});
 		
 		fut.complete();
 		
+	}
+	
+	private void registerUpVote(Vertx vertx){
+		vertx.eventBus().consumer(UP_VOTE, msg -> {
+			this.vote(msg, "ups");
+		});
+	}
+	
+	private void registerDownVote(Vertx vertx){
+		vertx.eventBus().consumer(DOWN_VOTE, msg -> {
+			this.vote(msg, "downs");
+		});
+	}
+	
+	private void registerAddOne(Vertx vertx){
+		vertx.eventBus().consumer(ADD_ONE, message -> {
+			String bookJson = (String) message.body();
+			if (!StringUtils.isNullOrEmpty(bookJson)) {
+				Book book = Json.decodeValue(bookJson, Book.class);
+				mongo.insert(COLLECTION, book.toJson(), result -> {
+					if (result.succeeded()) {
+						final String id = result.result();
+						book.setId(id);
+						message.reply(new AsyncReply(true, book.toJson().encodePrettily()).toJsonString());
+					} else {
+						message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
+					}
+				});
+			} else {
+				message.reply(new AsyncReply(false, DB003.toJsonString()).toJsonString());
+			}
+
+		});
+	}
+	
+	private void vote(Message<Object> msg, String field){
+		String id = (String)msg.body();
+		if(StringUtils.isNullOrEmpty(id)){
+			msg.reply(new AsyncReply(false, DB002.toJsonString()));
+		}else{
+			mongo.find(COLLECTION, new JsonObject().put("_id", id), result -> {
+				List<JsonObject> jsonObjects = result.result();
+				if(jsonObjects.size() > 0){
+					// Get only the first book of the result set and extract the id
+					JsonObject book = jsonObjects.get(0);
+					int ups = book.getInteger(field);
+					book.put(field, ++ups);
+					mongo.update(
+							COLLECTION,
+							new JsonObject().put("_id", id),
+							new JsonObject().put("$set", new JsonObject().put(field, ups)),
+							ar -> {
+								if(ar.succeeded()){
+									System.out.println("RESULT UPDATE: " + ar.result());
+									msg.reply(new AsyncReply(true, book.encodePrettily()).toJsonString());
+								}else{
+									System.out.println("RESULT UPDATE: " + ar.result());
+									msg.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
+								}
+							});
+					
+				}else {
+					msg.reply(new AsyncReply(false, DB001.toJsonString()).toJsonString());
+				}
+				
+			});
+		}
 	}
 
 	private JsonObject buildSearchQuery(final String searchTerm) {

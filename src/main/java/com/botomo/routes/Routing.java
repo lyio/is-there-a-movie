@@ -1,13 +1,9 @@
 package com.botomo.routes;
 
 import com.botomo.handlers.BookHandler;
-import com.botomo.handlers.TestHandler;
 
-import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpMethod;
+import com.botomo.handlers.CorsHandler;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.CorsHandler;
-import io.vertx.ext.web.handler.StaticHandler;
 
 
 public class Routing {
@@ -16,23 +12,12 @@ public class Routing {
 
     private final Router _router;
     
-    private final Vertx vertx;
 
     private final BookHandler bookHandler;
 
-    public Routing(Router router, BookHandler bookHandler, Vertx vertx) {
+    public Routing(Router router, BookHandler bookHandler) {
         this._router = router;
         this.bookHandler = bookHandler;
-        this.vertx = vertx;
-        
-        // enable CORS
-        this._router.route()
-        	.handler(CorsHandler.create("*")
-            	.allowedHeader("Accept")
-        		.allowedHeader("Content-Type")
-        		.allowedMethod(HttpMethod.GET)
-       			.allowedMethod(HttpMethod.POST)
-       			.allowedMethod(HttpMethod.OPTIONS));
     }
 
     /**
@@ -43,15 +28,11 @@ public class Routing {
      * @return the configured Router object.
      */
     public Router register() {
-        // Handles static resources
-        _router.route("/static/*").handler(StaticHandler.create("webroot/static"));
-        _router.route("/").handler(ctx -> ctx.response().sendFile("webroot/index.html"));
+        // enable CORS
+        _router.route().handler(new CorsHandler().getCors());
 
         // list of book2movie suggestions
         _router.get(API + "books").handler(bookHandler::getAll);
-        
-        // TMP - Just for testing
-        _router.get(API + "dbtest").handler(new TestHandler(vertx));
 
         return _router;
     }

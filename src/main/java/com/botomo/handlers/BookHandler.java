@@ -1,18 +1,20 @@
 package com.botomo.handlers;
 
-import static com.botomo.routes.EventBusAddresses.GET_ALL;
-import static com.botomo.routes.EventBusAddresses.SEARCH;
+import static com.botomo.routes.EventBusAddresses.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import com.botomo.StringUtils;
+import com.botomo.data.AsyncReply;
 import com.botomo.models.Book;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
+
 import io.vertx.ext.web.RoutingContext;
 
 /**
@@ -70,19 +72,50 @@ public class BookHandler {
 
 	private void getAllBooks(RoutingContext context) {
 		vertx.eventBus().send(GET_ALL, null, result -> {
-			this.handleGetReply(result, context);
-
+			AsyncReply ar = extractReply(result);
+			if (ar.state()) {
+				this.handleGetReply(ar.payload(), context);
+			} else {
+				this.handleDbError(context, ar.payload());
+			}
 		});
 	}
 
 	private void getSearchedBooks(RoutingContext context, final String searchTerm) {
 		vertx.eventBus().send(SEARCH, searchTerm, result -> {
-			this.handleGetReply(result, context);
+			AsyncReply ar = extractReply(result);
+			if (ar.state()) {
+				this.handleGetReply(ar.payload(), context);
+			} else {
+				this.handleDbError(context, ar.payload());
+			}
 		});
 	}
 
-	private void handleGetReply(AsyncResult<Message<Object>> result, RoutingContext context) {
+	private AsyncReply extractReply(AsyncResult<Message<Object>> result) {
+		String reply = (String) result.result().body();
+		AsyncReply ar = new AsyncReply(reply);
+		return ar;
+	}
+
+	private void handleReply(RoutingContext context, int status, String contentType, String body) {
+
 		// Handle successful database request
-		context.response().setStatusCode(200).putHeader("content-type", APP_JSON).end((String) result.result().body());
+		context.response().setStatusCode(status).putHeader("content-type", contentType).end(body);
+	}
+
+	private void handleGetReply(String jsonResult, RoutingContext context) {
+
+		this.handleReply(context, 200, APP_JSON, jsonResult);
+	}
+
+	private void handleDbError(RoutingContext context, String body) {
+
+		/*
+		 * Get the status code from the api error object which is provided as
+		 * json string
+		 */
+		JsonObject error = new JsonObject(body);
+		this.handleReply(context, error.getInteger("statusCode"), APP_JSON, body);
 	}
 }

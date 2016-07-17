@@ -1,5 +1,6 @@
 package com.botomo.models;
 
+import com.botomo.StringUtils;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -18,7 +19,7 @@ public class Book {
     public Book() {	}
 
     public Book(JsonObject json){
-    	this.id = json.getJsonObject("_id").getString("$oid");
+    	this.id = json.getString("_id");
     	this.title = json.getString("title");
     	this.subtitle = json.getString("subtitle");
     	this.author = json.getString("author");
@@ -27,7 +28,34 @@ public class Book {
     	this.ups = json.getInteger("ups");
     }
     
-    public String getId() {
+    /**
+     * Converts this object to a JsonObject.
+     * The id is only set if it's not set yet. Else the id field
+     * should be populated by the database.
+     * @return A JsonObject object representing this object.
+     */
+    public JsonObject toJson(){
+    	JsonObject json = new JsonObject();
+    	json.put("title", this.title);
+    	json.put("subtitle", this.subtitle);
+    	json.put("author", this.author);
+    	json.put("year", this.year);
+    	json.put("ups", this.ups);
+    	json.put("downs", this.downs);
+    	if(!StringUtils.isNullOrEmpty(this.id)){
+    		json.put("_id", new JsonObject().put("$oid", this.id));
+    	}
+    	
+    	return json;
+    }
+    
+    @Override
+	public String toString() {
+		return "Book [id=" + id + ", title=" + title + ", subtitle=" + subtitle + ", author=" + author + ", year="
+				+ year + ", downs=" + downs + ", ups=" + ups + "]";
+	}
+
+	public String getId() {
         return id;
     }
 
