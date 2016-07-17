@@ -7,15 +7,17 @@ public class Boot {
 	public static void main(String[] args) {
 		
 		Vertx vertx = Vertx.vertx();
-		vertx.deployVerticle(MainVerticle.class.getName(), deploymentResult -> {
-			if(deploymentResult.failed()){
-				System.out.println("Depoyment faild");
-				vertx.close();
-			}else {
-				System.out.println("MainVerticle successfully deployed");
-			}
-		});
 		
+		System.setProperty("dbname", "botomo");
+		System.setProperty("dburl", "mongodb://localhost:27017");
+		vertx.deployVerticle(MainVerticle.class.getName(), deploymentResult -> {
+			if(deploymentResult.succeeded()){
+				System.out.println("MainVerticle successfully deployed");
+			}else {
+				System.out.println("Deployment faild");
+				vertx.close();
+			}
+		});		
 	}
 	
 }

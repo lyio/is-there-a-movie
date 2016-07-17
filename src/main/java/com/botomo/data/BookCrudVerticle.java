@@ -30,7 +30,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 	private MongoClient mongo = null;
 
 	@Override
-	public void start(Future<Void> fut) throws Exception {
+	public void start() throws Exception {
 
 		// Initialize mongo client
 		mongo = MongoClient.createShared(vertx, config());
@@ -71,6 +71,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 		 * with the updated downs field.
 		 */
 		this.registerDownVote(vertx);
+		
 	}
 	
 	private void registerFindAll(Vertx vertx){
@@ -110,7 +111,6 @@ public class BookCrudVerticle extends AbstractVerticle {
 			});
 		});
 		
-		fut.complete();
 		
 	}
 	
