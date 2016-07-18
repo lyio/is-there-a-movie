@@ -29,24 +29,8 @@ public class BookHandler {
 
 	private final Vertx vertx;
 
-	public static final List<Book> list = new ArrayList<>(10);
-
 	public BookHandler(final Vertx vertx) {
 		this.vertx = vertx;
-	}
-
-	public void createData() {
-		for (int i = 1; i < 11; i++) {
-			Book b = new Book();
-			b.setId(String.valueOf(i));
-			b.setAuthor("Hodor" + i);
-			b.setSubtitle("Never gonna let you go");
-			b.setTitle("Never gonna give you up");
-			b.setYear(String.valueOf(new Date().getTime()));
-			b.setUps((int) (Math.random() * 1000 * i));
-			b.setDowns((int) (Math.random() * 1000 * i));
-			list.add(b);
-		}
 	}
 
 	/**
@@ -69,6 +53,20 @@ public class BookHandler {
 			// data
 			this.getSearchedBooks(context, searchTerm);
 		}
+	}
+
+	public void create(RoutingContext context) {
+		String book = context.getBodyAsString();
+
+		// Here db logic would need to take place
+		vertx.eventBus().send(ADD_ONE, book, result -> {
+            AsyncReply reply = extractReply(result);
+            if (reply.state()) {
+                handleReply(context, 201, APP_JSON, reply.payload());
+            } else {
+                handleDbError(context, reply.payload());
+            }
+		});
 	}
 
 	private void getAllBooks(RoutingContext context) {
@@ -119,18 +117,4 @@ public class BookHandler {
 		JsonObject error = new JsonObject(body);
 		this.handleReply(context, error.getInteger("statusCode"), APP_JSON, body);
 	}
-
-    public void create(RoutingContext context) {
-        Book book = Json.decodeValue(context.getBodyAsString(), Book.class);
-
-        // Here db logic would need to take place
-        book.setUps(1);
-        book.setId("" + (Math.random() * 1000));
-        BookHandler.list.add(book);
-
-        context.response()
-                .setStatusCode(201)
-                .putHeader("content-type", "application/json; charset=utf-8")
-                .end(Json.encode(book));
-    }
 }
