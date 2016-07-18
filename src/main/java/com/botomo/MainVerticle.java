@@ -62,7 +62,7 @@ public class MainVerticle extends AbstractVerticle {
     
     @Override
     public void stop() throws Exception {
-    	System.out.println("MainVerticle stoped");
+    	System.out.println("MainVerticle stopped");
     }
     	
     private void deployBookCrudVerticle(Future<BookCrudVerticle> fut){
