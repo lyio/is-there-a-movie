@@ -56,9 +56,9 @@ public class BookHandler {
 	}
 
 	public void create(RoutingContext context) {
+		
 		String book = context.getBodyAsString();
 
-		// Here db logic would need to take place
 		vertx.eventBus().send(ADD_ONE, book, result -> {
             AsyncReply reply = extractReply(result);
             if (reply.state()) {

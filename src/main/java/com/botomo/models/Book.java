@@ -40,7 +40,7 @@ public class Book {
         json.put("ups", this.ups);
         json.put("downs", this.downs);
         if (!StringUtils.isNullOrEmpty(this.id)) {
-            json.put("_id", new JsonObject().put("$oid", this.id));
+            json.put("_id", id);
         }
 
         return json;
