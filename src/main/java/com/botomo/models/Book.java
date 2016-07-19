@@ -3,9 +3,6 @@ package com.botomo.models;
 import com.botomo.StringUtils;
 import io.vertx.core.json.JsonObject;
 
-/**
- * Created by Thomas on 11.07.2016.
- */
 public class Book {
 
     private String id;
@@ -15,7 +12,7 @@ public class Book {
     private String year;
     private int downs;
     private int ups;
-    
+
     public Book() {	}
 
     public Book(JsonObject json){
@@ -34,21 +31,21 @@ public class Book {
      * should be populated by the database.
      * @return A JsonObject object representing this object.
      */
-    public JsonObject toJson(){
-    	JsonObject json = new JsonObject();
-    	json.put("title", this.title);
-    	json.put("subtitle", this.subtitle);
-    	json.put("author", this.author);
-    	json.put("year", this.year);
-    	json.put("ups", this.ups);
-    	json.put("downs", this.downs);
-    	if(!StringUtils.isNullOrEmpty(this.id)){
-    		json.put("_id", new JsonObject().put("$oid", this.id));
-    	}
-    	
-    	return json;
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject();
+        json.put("title", this.title);
+        json.put("subtitle", this.subtitle);
+        json.put("author", this.author);
+        json.put("year", this.year);
+        json.put("ups", this.ups);
+        json.put("downs", this.downs);
+        if (!StringUtils.isNullOrEmpty(this.id)) {
+            json.put("_id", id);
+        }
+
+        return json;
     }
-    
+
     @Override
 	public String toString() {
 		return "Book [id=" + id + ", title=" + title + ", subtitle=" + subtitle + ", author=" + author + ", year="

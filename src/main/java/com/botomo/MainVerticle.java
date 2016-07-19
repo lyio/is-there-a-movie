@@ -25,7 +25,6 @@ public class MainVerticle extends AbstractVerticle {
 		Router router = Router.router(vertx);
 		// create Book handler 
 		BookHandler bookHandler = new BookHandler(vertx);
-		bookHandler.createData();
 		// create Routing
 		Routing routing = new Routing(router, bookHandler);
 		// create server

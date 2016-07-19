@@ -13,6 +13,7 @@ import com.botomo.models.Book;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 
 import io.vertx.ext.web.RoutingContext;
@@ -28,24 +29,8 @@ public class BookHandler {
 
 	private final Vertx vertx;
 
-	public static final List<Book> list = new ArrayList<>(10);
-
 	public BookHandler(final Vertx vertx) {
 		this.vertx = vertx;
-	}
-
-	public void createData() {
-		for (int i = 1; i < 11; i++) {
-			Book b = new Book();
-			b.setId(String.valueOf(i));
-			b.setAuthor("Hodor" + i);
-			b.setSubtitle("Never gonna let you go");
-			b.setTitle("Never gonna give you up");
-			b.setYear(String.valueOf(new Date().getTime()));
-			b.setUps((int) (Math.random() * 1000 * i));
-			b.setDowns((int) (Math.random() * 1000 * i));
-			list.add(b);
-		}
 	}
 
 	/**
@@ -68,6 +53,20 @@ public class BookHandler {
 			// data
 			this.getSearchedBooks(context, searchTerm);
 		}
+	}
+
+	public void create(RoutingContext context) {
+		
+		String book = context.getBodyAsString();
+
+		vertx.eventBus().send(ADD_ONE, book, result -> {
+            AsyncReply reply = extractReply(result);
+            if (reply.state()) {
+                handleReply(context, 201, APP_JSON, reply.payload());
+            } else {
+                handleDbError(context, reply.payload());
+            }
+		});
 	}
 
 	private void getAllBooks(RoutingContext context) {

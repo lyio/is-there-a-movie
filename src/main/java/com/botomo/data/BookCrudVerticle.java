@@ -20,7 +20,7 @@ import io.vertx.ext.mongo.MongoClient;
 /**
  * This verticle realizes CRUD functionality for the book entity. To access
  * these functionalities use the message defined in
- * {@link com.botomo.data.EventBusAddresses}
+ * {@link com.botomo.routes.EventBusAddresses}
  *
  */
 public class BookCrudVerticle extends AbstractVerticle {
@@ -127,6 +127,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 			String bookJson = (String) message.body();
 			if (!StringUtils.isNullOrEmpty(bookJson)) {
 				Book book = Json.decodeValue(bookJson, Book.class);
+				book.setId(null);
 				mongo.insert(COLLECTION, book.toJson(), result -> {
 					if (result.succeeded()) {
 						final String id = result.result();

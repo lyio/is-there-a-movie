@@ -4,7 +4,7 @@ import com.botomo.handlers.BookHandler;
 
 import com.botomo.handlers.CorsHandler;
 import io.vertx.ext.web.Router;
-
+import io.vertx.ext.web.handler.BodyHandler;
 
 public class Routing {
 
@@ -33,6 +33,10 @@ public class Routing {
 
         // list of book2movie suggestions
         _router.get(API + "books").handler(bookHandler::getAll);
+
+        // creating new books
+        _router.route(API + "books*").handler(BodyHandler.create());
+        _router.post(API + "books").handler(bookHandler::create);
 
         return _router;
     }
