@@ -64,8 +64,8 @@ public class MainVerticle extends AbstractVerticle {
     	
     private void deployBookCrudVerticle(Future<BookCrudVerticle> fut){
     	JsonObject dbConf = new JsonObject()
-    			.put("db_name", System.getProperty(Config.dbname.name()))
-    			.put("connection_string", System.getProperty(Config.dburl.name()));
+    			.put("db_name", "chats")
+    			.put("connection_string", "mongodb://localhost:27017");
     	DeploymentOptions dbOpt = new DeploymentOptions().setConfig(dbConf);
     	
     	// deploy book crud verticle
