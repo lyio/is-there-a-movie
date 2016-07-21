@@ -19,7 +19,9 @@ public class MainVerticle extends AbstractVerticle {
 
     @Override
 	public void start(Future<Void> startFuture) throws Exception {
-    	
+
+        vertx.deployVerticle("GoodReadsVerticle.rb");
+
 		// create router
 		Router router = Router.router(vertx);
 		// create Book handler 
@@ -27,7 +29,7 @@ public class MainVerticle extends AbstractVerticle {
 		// create Routing
 		Routing routing = new Routing(router, bookHandler);
 		// create server
-		
+
 		// Define Future for http sever
 		Future<HttpServer> httpServerFut = Future.future();
 		vertx
@@ -42,12 +44,12 @@ public class MainVerticle extends AbstractVerticle {
 					httpServerFut.fail(result.cause());
 				}
 			});
-		
+
 		// Define Future for BookCrudVerticle deployment
-		
+
 		Future<BookCrudVerticle> bookCrudVerticalFut = Future.future();
 		this.deployBookCrudVerticle(bookCrudVerticalFut);
-		
+
 		CompositeFuture.all(httpServerFut, bookCrudVerticalFut).setHandler(ar -> {
 			if(ar.succeeded()){
 				startFuture.complete();
@@ -61,7 +63,7 @@ public class MainVerticle extends AbstractVerticle {
     public void stop() throws Exception {
     	System.out.println("MainVerticle stopped");
     }
-    	
+
     private void deployBookCrudVerticle(Future<BookCrudVerticle> fut){
     	JsonObject dbConf = new JsonObject()
     			.put("db_name", System.getProperty(Config.dbname.name()))

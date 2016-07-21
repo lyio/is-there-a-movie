@@ -44,6 +44,14 @@ public class Routing {
         // downvote single books
         _router.post(API + "books/:id/downvote").handler(bookHandler::downvote);
 
+        _router.get(API + "goodreads").handler(context -> {
+            String search = context.request().getParam("s");
+            System.out.println(search);
+            context.vertx().eventBus().send("goodreads.lookup", search, r -> {
+                context.response().end((String) r.result().body());
+            });
+        });
+
         return _router;
     }
 }
