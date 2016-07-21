@@ -2,9 +2,7 @@ package com.botomo.handlers;
 
 import static com.botomo.routes.EventBusAddresses.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import com.botomo.StringUtils;
 import com.botomo.data.AsyncReply;
@@ -68,6 +66,43 @@ public class BookHandler {
             }
 		});
 	}
+
+	/**
+     * Upvote a single book. Return the updated book entity to the client.
+     *
+     * @param context
+     */
+    public void upvote(RoutingContext context) {
+        String bookId = (context.request().getParam("id"));
+
+        vertx.eventBus().send(UP_VOTE, bookId, result -> {
+            AsyncReply reply = extractReply(result);
+
+            if(reply.state()) {
+                handleReply(context, 200, APP_JSON, reply.payload());
+            } else {
+                handleDbError(context, reply.payload());
+            }
+        });
+    }
+
+    /**
+     * Downvote a single book. Return the updated book entity to the client.
+     * @param context
+     */
+    public void downvote(RoutingContext context) {
+        String bookId = context.request().getParam("id");
+
+        vertx.eventBus().send(DOWN_VOTE, bookId, result -> {
+            AsyncReply reply = extractReply(result);
+
+            if(reply.state()) {
+                handleReply(context, 200, APP_JSON, reply.payload());
+            } else {
+                handleDbError(context, reply.payload());
+            }
+        });
+    }
 
 	private void getAllBooks(RoutingContext context) {
 		vertx.eventBus().send(GET_ALL, null, result -> {
