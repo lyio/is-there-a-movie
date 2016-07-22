@@ -2,6 +2,7 @@ package com.botomo;
 
 import com.botomo.data.BookCrudVerticle;
 import com.botomo.handlers.BookHandler;
+import com.botomo.handlers.GoodreadsHandler;
 import com.botomo.routes.Routing;
 
 import io.vertx.core.AbstractVerticle;
@@ -19,15 +20,14 @@ public class MainVerticle extends AbstractVerticle {
 
     @Override
 	public void start(Future<Void> startFuture) throws Exception {
-
-        vertx.deployVerticle("GoodReadsVerticle.rb");
-
-		// create router
+        // create router
 		Router router = Router.router(vertx);
 		// create Book handler 
 		BookHandler bookHandler = new BookHandler(vertx);
+
+        GoodreadsHandler goodreadsHandler = new GoodreadsHandler(vertx);
 		// create Routing
-		Routing routing = new Routing(router, bookHandler);
+		Routing routing = new Routing(router, bookHandler, goodreadsHandler);
 		// create server
 
 		// Define Future for http sever
@@ -50,6 +50,9 @@ public class MainVerticle extends AbstractVerticle {
 		Future<BookCrudVerticle> bookCrudVerticalFut = Future.future();
 		this.deployBookCrudVerticle(bookCrudVerticalFut);
 
+        Future<Void> goodreadsVerticleFuture = Future.future();
+        this.deployGoodreadsVerticle(goodreadsVerticleFuture);
+
 		CompositeFuture.all(httpServerFut, bookCrudVerticalFut).setHandler(ar -> {
 			if(ar.succeeded()){
 				startFuture.complete();
@@ -62,6 +65,17 @@ public class MainVerticle extends AbstractVerticle {
     @Override
     public void stop() throws Exception {
     	System.out.println("MainVerticle stopped");
+    }
+
+    private void deployGoodreadsVerticle(Future<Void> fut) {
+        vertx.deployVerticle("GoodReadsVerticle.rb", result -> {
+            if (result.failed()) {
+                result.cause().printStackTrace();
+                fut.fail(result.cause());
+            } else {
+                fut.completer();
+            }
+        });
     }
 
     private void deployBookCrudVerticle(Future<BookCrudVerticle> fut){
