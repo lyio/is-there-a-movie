@@ -11,6 +11,7 @@ import com.botomo.models.Book;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
@@ -36,7 +37,8 @@ public class BookCrudVerticle extends AbstractVerticle {
 		mongo = MongoClient.createShared(vertx, config());
 
 		/**
-		 * Consumer to get all books from the db. Returns a list of books as json.
+		 * Consumer to get all books from the db. Returns a list of books as
+		 * json.
 		 */
 		this.registerFindAll(vertx);
 
@@ -57,127 +59,177 @@ public class BookCrudVerticle extends AbstractVerticle {
 		 * the operation will reply with true.
 		 */
 		this.registerAddOne(vertx);
-		
+
 		/**
-		 * Consumer to up vote the provided book entry. The operation requires the
-		 * id of the book which should be up voted and returns the book object as json
-		 * with the updated ups field.
+		 * Consumer to up vote the provided book entry. The operation requires
+		 * the id of the book which should be up voted and returns the book
+		 * object as json with the updated ups field.
 		 */
 		this.registerUpVote(vertx);
-		
+
 		/**
-		 * Consumer to down vote the provided book entry. The operation requires the
-		 * id of the book which should be down voted and returns the book object as json
-		 * with the updated downs field.
+		 * Consumer to down vote the provided book entry. The operation requires
+		 * the id of the book which should be down voted and returns the book
+		 * object as json with the updated downs field.
 		 */
 		this.registerDownVote(vertx);
-		
-	}
-	
-	private void registerFindAll(Vertx vertx){
-		vertx.eventBus().consumer(GET_ALL, message -> {
-			mongo.find(COLLECTION, new JsonObject(), result -> {
-				if (result.succeeded()) {
-					// Fetch all books from db
-					List<JsonObject> foundJsonObjects = result.result();
-					// Map JsonObjects to Book Objects
-					List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
-					System.out.println("books: " + books);
-					// Return the fetched books as json
-					message.reply(new AsyncReply(true, Json.encodePrettily(books)).toJsonString());
-				} else {
-					message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
-				}
-			});
-		});
-	}
-	
-	private void registerSearch(Vertx vertx){
-		vertx.eventBus().consumer(SEARCH, message -> {
-			final String searchTerm = (String) message.body();
 
-			mongo.find(COLLECTION, buildSearchQuery(searchTerm), result -> {
-				if (result.succeeded()) {
-					// Fetch all books from db
-					List<JsonObject> foundJsonObjects = result.result();
-					// Map JsonObjects to Book Objects
-					List<Book> books = foundJsonObjects.stream().map(Book::new).collect(Collectors.toList());
-					System.out.println("books: " + books);
-					// Return the fetched books as json
-					message.reply(new AsyncReply(true, Json.encodePrettily(books)).toJsonString());
+	}
+
+	private void registerFindAll(Vertx vertx) {
+		vertx.eventBus()
+		     .consumer(GET_ALL, message -> {
+			     mongo.find(COLLECTION, new JsonObject(), result -> {
+				     if (result.succeeded()) {
+					     // Fetch all books from db
+					     List<JsonObject> foundJsonObjects = result.result();
+					     // Map JsonObjects to Book Objects
+					     List<Book> books = foundJsonObjects.stream()
+					                                        .map(Book::new)
+					                                        .collect(Collectors.toList());
+					     System.out.println("books: " + books);
+					     // Return the fetched books as
+					     // json
+					     message.reply(new AsyncReply(true,
+					                                  Json.encodePrettily(books)).toJsonString());
+				     } else {
+					     message.reply(new AsyncReply(false,
+					                                  DB000.toJsonString()).toJsonString());
+				     }
+			     });
+		     });
+	}
+
+	private void registerSearch(Vertx vertx) {
+		vertx.eventBus()
+		     .consumer(SEARCH, message -> {
+			     final String searchTerm = (String) message.body();
+
+			     mongo.find(COLLECTION, buildSearchQuery(searchTerm), result -> {
+				     if (result.succeeded()) {
+					     // Fetch all books from db
+					     List<JsonObject> foundJsonObjects = result.result();
+					     // Map JsonObjects to Book Objects
+					     List<Book> books = foundJsonObjects.stream()
+					                                        .map(Book::new)
+					                                        .collect(Collectors.toList());
+					     System.out.println("books: " + books);
+					     // Return the fetched books as
+					     // json
+					     message.reply(new AsyncReply(true,
+					                                  Json.encodePrettily(books)).toJsonString());
+				     } else {
+					     message.reply(new AsyncReply(false,
+					                                  DB000.toJsonString()).toJsonString());
+				     }
+			     });
+		     });
+
+	}
+
+	private void registerUpVote(Vertx vertx) {
+		vertx.eventBus()
+		     .consumer(UP_VOTE, msg -> {
+			     this.vote(msg, "ups");
+		     });
+	}
+
+	private void registerDownVote(Vertx vertx) {
+		vertx.eventBus()
+		     .consumer(DOWN_VOTE, msg -> {
+			     this.vote(msg, "downs");
+		     });
+	}
+
+	private void registerAddOne(Vertx vertx) {
+		vertx.eventBus()
+		     .consumer(ADD_ONE, message -> {
+			     String bookJson = (String) message.body();
+			     if (!StringUtils.isNullOrEmpty(bookJson)) {
+				     Book book = Json.decodeValue(bookJson, Book.class);
+				     book.setId(null);
+				     // Check if book exists
+				     this.checkIfBookExists(book, message, nothing -> {
+				    	 // This is called if no book with the provided title and auther exists
+					     this.addBook(book, message);
+				     });
+			     } else {
+				     message.reply(new AsyncReply(false,
+				                                  DB003.toJsonString()).toJsonString());
+			     }
+		     });
+	}
+
+	private void checkIfBookExists(Book book, Message<Object> message, Handler<Void> next) {
+		JsonObject query = new JsonObject().put("title", book.getTitle())
+		                                   .put("author", book.getAuthor());
+
+		mongo.find(COLLECTION, query, ar -> {
+			if (ar.succeeded()) {
+				if (ar.result()
+				      .size() > 0) {
+					// Book exists
+					message.reply(new AsyncReply(false,
+					                             DB004.toJsonString()).toJsonString());
 				} else {
-					message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
+					// Book does not exist
+					next.handle(null);
 				}
-			});
-		});
-		
-		
-	}
-	
-	private void registerUpVote(Vertx vertx){
-		vertx.eventBus().consumer(UP_VOTE, msg -> {
-			this.vote(msg, "ups");
-		});
-	}
-	
-	private void registerDownVote(Vertx vertx){
-		vertx.eventBus().consumer(DOWN_VOTE, msg -> {
-			this.vote(msg, "downs");
-		});
-	}
-	
-	private void registerAddOne(Vertx vertx){
-		vertx.eventBus().consumer(ADD_ONE, message -> {
-			String bookJson = (String) message.body();
-			if (!StringUtils.isNullOrEmpty(bookJson)) {
-				Book book = Json.decodeValue(bookJson, Book.class);
-				book.setId(null);
-				mongo.insert(COLLECTION, book.toJson(), result -> {
-					if (result.succeeded()) {
-						final String id = result.result();
-						book.setId(id);
-						message.reply(new AsyncReply(true, book.toJson().encodePrettily()).toJsonString());
-					} else {
-						message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
-					}
-				});
 			} else {
-				message.reply(new AsyncReply(false, DB003.toJsonString()).toJsonString());
+				// Error
+				message.reply(new AsyncReply(false,
+				                             DB000.toJsonString()).toJsonString());
 			}
-
 		});
 	}
-	
-	private void vote(Message<Object> msg, String field){
-		String id = (String)msg.body();
-		if(StringUtils.isNullOrEmpty(id)){
-			msg.reply(new AsyncReply(false, DB002.toJsonString()));
-		}else{
+
+	private void addBook(Book book, Message<Object> message) {
+		mongo.insert(COLLECTION, book.toJson(), result -> {
+			if (result.succeeded()) {
+				final String id = result.result();
+				book.setId(id);
+				message.reply(new AsyncReply(true,
+				                             book.toJson()
+				                                 .encodePrettily()).toJsonString());
+			} else {
+				message.reply(new AsyncReply(false,
+				                             DB000.toJsonString()).toJsonString());
+			}
+		});
+	}
+
+	private void vote(Message<Object> msg, String field) {
+		String id = (String) msg.body();
+		if (StringUtils.isNullOrEmpty(id)) {
+			msg.reply(new AsyncReply(false,
+			                         DB002.toJsonString()));
+		} else {
 			mongo.find(COLLECTION, new JsonObject().put("_id", id), result -> {
 				List<JsonObject> jsonObjects = result.result();
-				if(jsonObjects.size() > 0){
-					// Get only the first book of the result set and extract the id
+				if (jsonObjects.size() > 0) {
+					// Get only the first book of the result set and
+					// extract the id
 					JsonObject book = jsonObjects.get(0);
 					int ups = book.getInteger(field);
 					book.put(field, ++ups);
-					mongo.update(
-							COLLECTION,
-							new JsonObject().put("_id", id),
-							new JsonObject().put("$set", new JsonObject().put(field, ups)),
-							ar -> {
-								if(ar.succeeded()){
-									System.out.println("RESULT UPDATE: " + ar.result());
-									msg.reply(new AsyncReply(true, book.encodePrettily()).toJsonString());
-								}else{
-									System.out.println("RESULT UPDATE: " + ar.result());
-									msg.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
-								}
-							});
-					
-				}else {
-					msg.reply(new AsyncReply(false, DB001.toJsonString()).toJsonString());
+					mongo.update(COLLECTION, new JsonObject().put("_id", id),
+					             new JsonObject().put("$set", new JsonObject().put(field, ups)), ar -> {
+						             if (ar.succeeded()) {
+							             System.out.println("RESULT UPDATE: " + ar.result());
+							             msg.reply(new AsyncReply(true,
+							                                      book.encodePrettily()).toJsonString());
+						             } else {
+							             System.out.println("RESULT UPDATE: " + ar.result());
+							             msg.reply(new AsyncReply(false,
+							                                      DB000.toJsonString()).toJsonString());
+						             }
+					             });
+
+				} else {
+					msg.reply(new AsyncReply(false,
+					                         DB001.toJsonString()).toJsonString());
 				}
-				
+
 			});
 		}
 	}
@@ -185,7 +237,8 @@ public class BookCrudVerticle extends AbstractVerticle {
 	private JsonObject buildSearchQuery(final String searchTerm) {
 
 		// Build the json query
-		final String pattern = ".*" + searchTerm + ".*";
+		final String pattern = ".*" + searchTerm
+		                       + ".*";
 
 		JsonObject q = new JsonObject();
 
