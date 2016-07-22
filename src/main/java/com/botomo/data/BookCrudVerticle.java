@@ -131,11 +131,11 @@ public class BookCrudVerticle extends AbstractVerticle {
 			String bookJson = (String) message.body();
 			if (!StringUtils.isNullOrEmpty(bookJson)) {
 				Book book = Json.decodeValue(bookJson, Book.class);
-				book.setId(null);
+				book.set_id(null);
 				mongo.insert(COLLECTION, book.toJson(), result -> {
 					if (result.succeeded()) {
 						final String id = result.result();
-						book.setId(id);
+						book.set_id(id);
 						message.reply(new AsyncReply(true, book.toJson().encodePrettily()).toJsonString());
 					} else {
 						message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
