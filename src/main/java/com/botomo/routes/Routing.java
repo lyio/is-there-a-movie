@@ -3,8 +3,12 @@ package com.botomo.routes;
 import com.botomo.handlers.BookHandler;
 
 import com.botomo.handlers.CorsHandler;
+import com.botomo.handlers.GoodreadsHandler;
+import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+
+import static com.botomo.routes.EventBusAddresses.GOODREADS;
 
 public class Routing {
 
@@ -12,12 +16,14 @@ public class Routing {
 
     private final Router _router;
     
+    private final GoodreadsHandler goodreadsHandler;
 
     private final BookHandler bookHandler;
 
-    public Routing(Router router, BookHandler bookHandler) {
+    public Routing(Router router, BookHandler bookHandler, GoodreadsHandler goodreadsHandler) {
         this._router = router;
         this.bookHandler = bookHandler;
+        this.goodreadsHandler = goodreadsHandler;
     }
 
     /**
@@ -44,13 +50,7 @@ public class Routing {
         // downvote single books
         _router.post(API + "books/:id/downvote").handler(bookHandler::downvote);
 
-        _router.get(API + "goodreads").handler(context -> {
-            String search = context.request().getParam("s");
-            System.out.println(search);
-            context.vertx().eventBus().send("goodreads.lookup", search, r -> {
-                context.response().end((String) r.result().body());
-            });
-        });
+        _router.get(API + "goodreads").handler(goodreadsHandler::lookup);
 
         return _router;
     }
