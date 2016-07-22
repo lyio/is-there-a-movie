@@ -15,9 +15,10 @@ public enum ApiErrors {
 	DB000(500, "Critical database error occured"),
 	DB001(404, "No book found for the provided ID"),
 	DB002(400, "Id must not be empty or null"),
-	DB003(400, "Request must contain a valid book formatted as json string");
+	DB003(400, "Request must contain a valid book formatted as json string"),
 	
-	// Add additional error of the api
+	// Validation error
+	V000(400, "Invalid json format");
 	
 	private final int statusCode;
 	private final String msg;
