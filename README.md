@@ -34,7 +34,7 @@ API
 Response body:
    ```json
   [{
-    "_id":1,
+    "id":1,
     "title":"Lorem Ipsum",
     "subtitle":"Lorem Ipsum Sub",
     "author":"Loras Ipsum",
@@ -64,7 +64,7 @@ Request body:
   Response:
   ```json
     {
-      "_id": "123",
+      "id": "123",
       "title":"Lorem Ipsum",
       "subtitle":"Lorem Ipsum Sub",
       "author":"Loras Ipsum",
@@ -82,7 +82,7 @@ Path parameters:
   Response:
   ```json
     {
-      "_id": "123",
+      "id": "123",
       "title":"Lorem Ipsum",
       "subtitle":"Lorem Ipsum Sub",
       "author":"Loras Ipsum",
@@ -100,7 +100,7 @@ Path parameters:
   Response:
   ```json
     {
-      "_id": "123",
+      "id": "123",
       "title":"Lorem Ipsum",
       "subtitle":"Lorem Ipsum Sub",
       "author":"Loras Ipsum",
@@ -118,7 +118,7 @@ Query parameter
 Response body:
    ```json
   [{
-    "_id":1,
+    "id":1,
     "title":"Lorem Ipsum",
     "subtitle":"Lorem Ipsum Sub",
     "author":"Loras Ipsum",
