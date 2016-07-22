@@ -1,14 +1,21 @@
 package com.botomo.models;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
 import com.botomo.StringUtils;
 import io.vertx.core.json.JsonObject;
 
 public class Book {
 
     private String id;
+    @NotNull(message="Title must not be null") @Size(min=1, message="Title must not be empty")
     private String title;
     private String subtitle;
+    @NotNull(message="Author must not be null") @Size(min=1, message="Author must not be empty")
     private String author;
+    @Pattern(regexp="[1-9]{4}", message="The year must be formatted as four numbers string")
     private String year;
     private int downs;
     private int ups;
