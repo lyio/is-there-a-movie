@@ -19,7 +19,6 @@ Navigate to src/main/scripts and run
   ```shell
   ./import_test_data_to_mongo.sh
   ```
-- Build the fat jar `./gradlew shadowJar`
 
 - Run the fat jar from console:
 
@@ -79,36 +78,10 @@ Request body:
 Path parameters:
 - id: book id
 
-  Response:
-  ```json
-    {
-      "id": "123",
-      "title":"Lorem Ipsum",
-      "subtitle":"Lorem Ipsum Sub",
-      "author":"Loras Ipsum",
-      "year":"2003",
-      "ups":2,
-      "downs":12
-    }
-  ```
-
 **POST api/v1/books/:id/downvote**
 
 Path parameters:
 - id: book id
-
-  Response:
-  ```json
-    {
-      "id": "123",
-      "title":"Lorem Ipsum",
-      "subtitle":"Lorem Ipsum Sub",
-      "author":"Loras Ipsum",
-      "year":"2003",
-      "ups":2,
-      "downs":12
-    }
-  ```
 
 **GET api/v1/books?search=searchterm**
 
