@@ -147,7 +147,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 			     String bookJson = (String) message.body();
 			     if (!StringUtils.isNullOrEmpty(bookJson)) {
 				     Book book = Json.decodeValue(bookJson, Book.class);
-				     book.setId(null);
+				     book.set_id(null);
 				     // Check if book exists
 				     this.checkIfBookExists(book, message, nothing -> {
 				    	 // This is called if no book with the provided title and auther exists
@@ -187,7 +187,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 		mongo.insert(COLLECTION, book.toJson(), result -> {
 			if (result.succeeded()) {
 				final String id = result.result();
-				book.setId(id);
+				book.set_id(id);
 				message.reply(new AsyncReply(true,
 				                             book.toJson()
 				                                 .encodePrettily()).toJsonString());
