@@ -33,7 +33,7 @@ API
 Response body:
    ```json
   [{
-    "id":1,
+    "_id":1,
     "title":"Lorem Ipsum",
     "subtitle":"Lorem Ipsum Sub",
     "author":"Loras Ipsum",
@@ -63,7 +63,7 @@ Request body:
   Response:
   ```json
     {
-      "id": "123",
+      "_id": "123",
       "title":"Lorem Ipsum",
       "subtitle":"Lorem Ipsum Sub",
       "author":"Loras Ipsum",
@@ -91,7 +91,7 @@ Query parameter
 Response body:
    ```json
   [{
-    "id":1,
+    "_id":1,
     "title":"Lorem Ipsum",
     "subtitle":"Lorem Ipsum Sub",
     "author":"Loras Ipsum",

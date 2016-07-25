@@ -9,7 +9,8 @@ import io.vertx.core.json.JsonObject;
 
 public class Book {
 
-    private String id;
+
+    private String _id;
     @NotNull(message="Title must not be null") @Size(min=1, message="Title must not be empty")
     private String title;
     private String subtitle;
@@ -23,7 +24,7 @@ public class Book {
     public Book() {	}
 
     public Book(JsonObject json){
-    	this.id = json.getString("_id");
+    	this._id = json.getString("_id");
     	this.title = json.getString("title");
     	this.subtitle = json.getString("subtitle");
     	this.author = json.getString("author");
@@ -46,8 +47,8 @@ public class Book {
         json.put("year", this.year);
         json.put("ups", this.ups);
         json.put("downs", this.downs);
-        if (!StringUtils.isNullOrEmpty(this.id)) {
-            json.put("_id", id);
+        if (!StringUtils.isNullOrEmpty(this._id)) {
+            json.put("_id", _id);
         }
 
         return json;
@@ -55,19 +56,19 @@ public class Book {
 
     @Override
 	public String toString() {
-		return "Book [id=" + id + ", title=" + title + ", subtitle=" + subtitle + ", author=" + author + ", year="
+		return "Book [id=" + _id + ", title=" + title + ", subtitle=" + subtitle + ", author=" + author + ", year="
 				+ year + ", downs=" + downs + ", ups=" + ups + "]";
 	}
 
-	public String getId() {
-        return id;
-    }
+    public String get_id() {
+		return _id;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void set_id(String _id) {
+		this._id = _id;
+	}
 
-    public String getTitle() {
+	public String getTitle() {
         return title;
     }
 

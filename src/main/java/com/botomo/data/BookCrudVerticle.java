@@ -10,7 +10,6 @@ import com.botomo.StringUtils;
 import com.botomo.models.Book;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
@@ -131,11 +130,11 @@ public class BookCrudVerticle extends AbstractVerticle {
 			String bookJson = (String) message.body();
 			if (!StringUtils.isNullOrEmpty(bookJson)) {
 				Book book = Json.decodeValue(bookJson, Book.class);
-				book.setId(null);
+				book.set_id(null);
 				mongo.insert(COLLECTION, book.toJson(), result -> {
 					if (result.succeeded()) {
 						final String id = result.result();
-						book.setId(id);
+						book.set_id(id);
 						message.reply(new AsyncReply(true, book.toJson().encodePrettily()).toJsonString());
 					} else {
 						message.reply(new AsyncReply(false, DB000.toJsonString()).toJsonString());
