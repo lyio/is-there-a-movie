@@ -27,8 +27,6 @@ dependencies {
 processResources {
     from 'src/main/ruby'
     from 'src/main/java'
-
-
 }
 
 shadowJar {

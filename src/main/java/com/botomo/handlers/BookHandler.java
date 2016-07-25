@@ -30,8 +30,7 @@ public class BookHandler extends BotomoHandler {
      */
     public void getAll(RoutingContext context) {
 
-        String searchTerm = context.request()
-                .getParam(QPARAM_SEARCH);
+        String searchTerm = context.request().getParam(QPARAM_SEARCH);
 
         if (StringUtils.isNullOrEmpty(searchTerm)) {
             // If search parameter is empty call getAllBooks to fetch all books
@@ -40,8 +39,7 @@ public class BookHandler extends BotomoHandler {
         } else {
             // If search parameter is not empty perform the search on the fake
             // data
-            this.getSearchedBooks(context,
-                    searchTerm);
+            this.getSearchedBooks(context, searchTerm);
         }
     }
 
@@ -91,22 +89,15 @@ public class BookHandler extends BotomoHandler {
         String bookId = (context.request()
                 .getParam("id"));
 
-        vertx.eventBus()
-                .send(UP_VOTE,
-                        bookId,
-                        result -> {
-                            AsyncReply reply = extractReply(result);
+        vertx.eventBus().send(UP_VOTE, bookId, result -> {
+            AsyncReply reply = extractReply(result);
 
-                            if (reply.state()) {
-                                handleReply(context,
-                                        200,
-                                        APP_JSON,
-                                        reply.payload());
-                            } else {
-                                handleDbError(context,
-                                        reply.payload());
-                            }
-                        });
+            if (reply.state()) {
+                handleReply(context, 200, APP_JSON, reply.payload());
+            } else {
+                handleDbError(context, reply.payload());
+            }
+        });
     }
 
     /**
@@ -115,57 +106,39 @@ public class BookHandler extends BotomoHandler {
      * @param context
      */
     public void downvote(RoutingContext context) {
-        String bookId = context.request()
-                .getParam("id");
+        String bookId = context.request().getParam("id");
 
-        vertx.eventBus()
-                .send(DOWN_VOTE,
-                        bookId,
-                        result -> {
-                            AsyncReply reply = extractReply(result);
+        vertx.eventBus().send(DOWN_VOTE, bookId, result -> {
+            AsyncReply reply = extractReply(result);
 
-                            if (reply.state()) {
-                                handleReply(context,
-                                        200,
-                                        APP_JSON,
-                                        reply.payload());
-                            } else {
-                                handleDbError(context,
-                                        reply.payload());
-                            }
-                        });
+            if (reply.state()) {
+                handleReply(context, 200, APP_JSON, reply.payload());
+            } else {
+                handleDbError(context, reply.payload());
+            }
+        });
     }
 
     private void getAllBooks(RoutingContext context) {
-        vertx.eventBus()
-                .send(GET_ALL,
-                        null,
-                        result -> {
-                            AsyncReply ar = extractReply(result);
-                            if (ar.state()) {
-                                this.handleGetReply(ar.payload(),
-                                        context);
-                            } else {
-                                this.handleDbError(context,
-                                        ar.payload());
-                            }
-                        });
+        vertx.eventBus().send(GET_ALL, null, result -> {
+            AsyncReply ar = extractReply(result);
+            if (ar.state()) {
+                this.handleGetReply(ar.payload(), context);
+            } else {
+                this.handleDbError(context, ar.payload());
+            }
+        });
     }
 
-    private void getSearchedBooks(RoutingContext context,
-                                  final String searchTerm) {
-        vertx.eventBus()
-                .send(SEARCH,
-                        searchTerm,
-                        result -> {
-                            AsyncReply ar = extractReply(result);
-                            if (ar.state()) {
-                                this.handleGetReply(ar.payload(),
-                                        context);
-                            } else {
-                                this.handleDbError(context,
-                                        ar.payload());
-                            }
-                        });
+    private void getSearchedBooks(RoutingContext context, final String searchTerm) {
+        vertx.eventBus().send(SEARCH, searchTerm, result -> {
+            AsyncReply ar = extractReply(result);
+            if (ar.state()) {
+                this.handleGetReply(ar.payload(), context);
+            } else {
+                this.handleDbError(context, ar.payload());
+            }
+        });
     }
+
 }
