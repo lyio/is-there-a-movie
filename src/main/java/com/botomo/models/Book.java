@@ -23,7 +23,6 @@ public class Book {
     private String author;
     
     @Pattern(regexp="[1-9]{4}", message="The year must be formatted as four numbers string")
-    @Past(message="The year must be the current year or one in the past")
     private String year;
     
     private int downs;
