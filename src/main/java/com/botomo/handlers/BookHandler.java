@@ -1,13 +1,19 @@
 package com.botomo.handlers;
 
+import static com.botomo.ApiErrors.*;
 import static com.botomo.routes.EventBusAddresses.*;
+
+import java.util.*;
 
 import com.botomo.ApiErrors;
 import com.botomo.BeanValidator;
 import com.botomo.StringUtils;
 import com.botomo.data.AsyncReply;
+
+import io.vertx.core.AsyncResult;
 import com.botomo.models.Book;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 
@@ -82,30 +88,11 @@ public class BookHandler extends BotomoHandler {
     public void upvote(RoutingContext context)  {
         String bookId = (context.request().getParam("id"));
 
-        final Cookie votesCookie = context.getCookie("votes");
-        final Vote votes = votesCookie != null
-                    ? Vote.decode(votesCookie.getValue())
-                    : new Vote();
-        if (votes.getUpvotes().contains(bookId)) {
-            handleReply(context, 400, APP_JSON, "Bad Request");
-            return;
+        if (Objects.isNull(bookId) || checkCookie(context, UP_VOTE)) {
+            handleReply(context, DB004.getStatusCode(), APP_JSON, DB004.getMsg());
+        } else {
+            vote(context, bookId, UP_VOTE);
         }
-        vertx.eventBus().send(UP_VOTE, bookId, result -> {
-            AsyncReply reply = extractReply(result);
-
-            if(reply.state()) {
-                votes.getUpvotes().add(bookId);
-                    String encoded = votes.encode();
-                    Cookie cookie = Cookie
-                            .cookie("votes", encoded)
-                            .setPath("api/v1/books/*")
-                            .setHttpOnly(false);
-                    context.addCookie(cookie);
-                    handleGetReply(reply.payload(), context);
-            } else {
-                handleDbError(context, reply.payload());
-            }
-        });
     }
 
     /**
@@ -115,15 +102,35 @@ public class BookHandler extends BotomoHandler {
     public void downvote(RoutingContext context) {
         String bookId = context.request().getParam("id");
 
-        vertx.eventBus().send(DOWN_VOTE, bookId, result -> {
+        if (Objects.isNull(bookId) || checkCookie(context, DOWN_VOTE)) {
+            handleReply(context, DB004.getStatusCode(), APP_JSON, DB004.getMsg());
+        } else {
+            vote(context, bookId, DOWN_VOTE);
+        }
+    }
+
+    private void vote(RoutingContext context, String bookId, String voteType) {
+        vertx.eventBus().send(voteType, bookId, result -> {
             AsyncReply reply = extractReply(result);
 
             if(reply.state()) {
-                handleReply(context, 200, APP_JSON, reply.payload());
+                handleCookies(context, voteType);
+                handleGetReply(reply.payload(), context);
             } else {
                 handleDbError(context, reply.payload());
             }
         });
+    }
+
+    private void handleCookies(RoutingContext context, String voteType) {
+        final Cookie cookie = Cookie
+                .cookie(voteType, "")
+                .setHttpOnly(false);
+        context.addCookie(cookie);
+    }
+
+    private boolean checkCookie(RoutingContext context, String cookieName) {
+        return Objects.nonNull(context.getCookie(cookieName));
     }
 
 	private void getAllBooks(RoutingContext context) {

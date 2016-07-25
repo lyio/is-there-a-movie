@@ -17,7 +17,8 @@ public enum ApiErrors {
 	DB002(400, "Id must not be empty or null"),
 	DB003(400, "Request must contain a valid book formatted as json string"),
 	DB004(400, "Book with the provided title and author already exists"),
-	
+	DB005(405, "Method not allowed, already voted");
+
 	// Validation error
 	V000(400, "Invalid json format");
 	
