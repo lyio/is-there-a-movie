@@ -21,8 +21,6 @@ public class BeanValidator {
 		
 		Set<ConstraintViolation<T>> violations = this.validator.validate(object);
 		
-		System.out.println("FETCHED Vs: " + violations);
-		
 		JsonObject jo = new JsonObject();
 		JsonArray ja = new JsonArray();
 		
@@ -36,21 +34,8 @@ public class BeanValidator {
 		
 		jo.put("violations", ja);
 		
-		System.out.println("VALIDATION -> " + jo.encodePrettily());
-		
 		return jo;
 	}
 	
-//	public static void main(String[] args) {
-//		
-//		Book b = new Book();
-//		b.setTitle(null);
-//		b.setAuthor("");
-//		b.setYear("123");
-//		
-//		BeanValidator bv = new BeanValidator();
-//		bv.<Book>validate(b);
-//		
-//	}
 	
 }
