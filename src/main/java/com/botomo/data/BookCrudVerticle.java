@@ -127,15 +127,13 @@ public class BookCrudVerticle extends AbstractVerticle {
 	}
 
 	private void registerUpVote(Vertx vertx) {
-		vertx.eventBus()
-		     .consumer(UP_VOTE, msg -> {
+		vertx.eventBus().consumer(UP_VOTE, msg -> {
 			     this.vote(msg, "ups");
 		     });
 	}
 
 	private void registerDownVote(Vertx vertx) {
-		vertx.eventBus()
-		     .consumer(DOWN_VOTE, msg -> {
+		vertx.eventBus().consumer(DOWN_VOTE, msg -> {
 			     this.vote(msg, "downs");
 		     });
 	}
@@ -167,8 +165,7 @@ public class BookCrudVerticle extends AbstractVerticle {
 	        .put("author", book.getAuthor());
 		mongo.find(COLLECTION, query, ar -> {
 			if (ar.succeeded()) {
-				if (ar.result()
-				      .size() > 0) {
+				if (ar.result().size() > 0) {
 					// Book exists
 					message.reply(new AsyncReply(
 	                     false,
