@@ -39,8 +39,9 @@ public class BookHandler {
 	 */
 	public void getAll(RoutingContext context) {
 
-		String searchTerm = context.request()
-		                           .getParam(QPARAM_SEARCH);
+		String searchTerm = context
+				.request()
+		        .getParam(QPARAM_SEARCH);
 
 		if (StringUtils.isNullOrEmpty(searchTerm)) {
 			// If search parameter is empty call getAllBooks to fetch all books
@@ -49,8 +50,7 @@ public class BookHandler {
 		} else {
 			// If search parameter is not empty perform the search on the fake
 			// data
-			this.getSearchedBooks(context,
-			                      searchTerm);
+			this.getSearchedBooks(context, searchTerm);
 		}
 	}
 
@@ -58,8 +58,7 @@ public class BookHandler {
 		String book = context.getBodyAsString();
 		Book b = null;
 		try {
-			b = Json.decodeValue(book,
-			                     Book.class);
+			b = Json.decodeValue(book, Book.class);
 		} catch (Exception e) {
 			handleReply(context,
 			            ApiErrors.V000.getStatusCode(),
@@ -67,27 +66,20 @@ public class BookHandler {
 			            ApiErrors.V000.toJsonString());
 		}
 		JsonObject violations = new BeanValidator().<Book>validate(b);
-		int violationsLen = violations.getJsonArray("violations")
-		                              .size();
+		int violationsLen = violations
+				.getJsonArray("violations")
+		        .size();
 		if (violationsLen > 0) {
-			handleBeanViolationReply(context,
-			                         violations);
+			handleBeanViolationReply(context, violations);
 		} else {
-			vertx.eventBus()
-			     .send(ADD_ONE,
-			           book,
-			           result -> {
-				           AsyncReply reply = extractReply(result);
-				           if (reply.state()) {
-					           handleReply(context,
-					                       201,
-					                       APP_JSON,
-					                       reply.payload());
-				           } else {
-					           handleDbError(context,
-					                         reply.payload());
-				           }
-			           });
+			vertx.eventBus().send(ADD_ONE, book, result -> {
+	           AsyncReply reply = extractReply(result);
+	           if (reply.state()) {
+		           handleReply(context, 201, APP_JSON, reply.payload());
+	           } else {
+		           handleDbError(context, reply.payload());
+	           }
+           });
 		}
 	}
 
@@ -97,25 +89,17 @@ public class BookHandler {
 	 * @param context
 	 */
 	public void upvote(RoutingContext context) {
-		String bookId = (context.request()
-		                        .getParam("id"));
-
-		vertx.eventBus()
-		     .send(UP_VOTE,
-		           bookId,
-		           result -> {
-			           AsyncReply reply = extractReply(result);
-
-			           if (reply.state()) {
-				           handleReply(context,
-				                       200,
-				                       APP_JSON,
-				                       reply.payload());
-			           } else {
-				           handleDbError(context,
-				                         reply.payload());
-			           }
-		           });
+		String bookId = (context
+				.request()
+                .getParam("id"));
+		vertx.eventBus().send(UP_VOTE, bookId, result -> {
+           AsyncReply reply = extractReply(result);
+           if (reply.state()) {
+	           handleReply(context, 200, APP_JSON, reply.payload());
+           } else {
+	           handleDbError(context, reply.payload());
+           }
+       });
 	}
 
 	/**
@@ -124,63 +108,46 @@ public class BookHandler {
 	 * @param context
 	 */
 	public void downvote(RoutingContext context) {
-		String bookId = context.request()
-		                       .getParam("id");
-
-		vertx.eventBus()
-		     .send(DOWN_VOTE,
-		           bookId,
-		           result -> {
-			           AsyncReply reply = extractReply(result);
-
-			           if (reply.state()) {
-				           handleReply(context,
-				                       200,
-				                       APP_JSON,
-				                       reply.payload());
-			           } else {
-				           handleDbError(context,
-				                         reply.payload());
-			           }
-		           });
+		String bookId = context
+				.request()
+                .getParam("id");
+		vertx.eventBus().send(DOWN_VOTE, bookId, result -> {
+           AsyncReply reply = extractReply(result);
+           if (reply.state()) {
+	           handleReply(context, 200, APP_JSON, reply.payload());
+           } else {
+	           handleDbError(context, reply.payload());
+           }
+       });
 	}
 
 	private void getAllBooks(RoutingContext context) {
-		vertx.eventBus()
-		     .send(GET_ALL,
-		           null,
-		           result -> {
-			           AsyncReply ar = extractReply(result);
-			           if (ar.state()) {
-				           this.handleGetReply(ar.payload(),
-				                               context);
-			           } else {
-				           this.handleDbError(context,
-				                              ar.payload());
-			           }
-		           });
+		vertx.eventBus().send(GET_ALL, null, result -> {
+           AsyncReply ar = extractReply(result);
+           if (ar.state()) {
+	           this.handleGetReply(ar.payload(), context);
+           } else {
+	           this.handleDbError(context, ar.payload());
+           }
+       });
 	}
 
 	private void getSearchedBooks(RoutingContext context,
 	                              final String searchTerm) {
-		vertx.eventBus()
-		     .send(SEARCH,
-		           searchTerm,
-		           result -> {
-			           AsyncReply ar = extractReply(result);
-			           if (ar.state()) {
-				           this.handleGetReply(ar.payload(),
-				                               context);
-			           } else {
-				           this.handleDbError(context,
-				                              ar.payload());
-			           }
-		           });
+		vertx.eventBus().send(SEARCH, searchTerm, result -> {
+           AsyncReply ar = extractReply(result);
+           if (ar.state()) {
+	           this.handleGetReply(ar.payload(), context);
+           } else {
+	           this.handleDbError(context, ar.payload());
+           }
+       });
 	}
 
 	private AsyncReply extractReply(AsyncResult<Message<Object>> result) {
-		String reply = (String) result.result()
-		                              .body();
+		String reply = (String) result
+				.result()
+                .body();
 		AsyncReply ar = new AsyncReply(reply);
 		return ar;
 	}
@@ -189,43 +156,27 @@ public class BookHandler {
 	                         int status,
 	                         String contentType,
 	                         String body) {
-
 		// Handle successful database request
 		context.response()
 		       .setStatusCode(status)
-		       .putHeader("content-type",
-		                  contentType)
+		       .putHeader("content-type", contentType)
 		       .end(body);
 	}
 
-	private void handleGetReply(String jsonResult,
-	                            RoutingContext context) {
-
-		this.handleReply(context,
-		                 200,
-		                 APP_JSON,
-		                 jsonResult);
+	private void handleGetReply(String jsonResult, RoutingContext context) {
+		this.handleReply(context, 200, APP_JSON, jsonResult);
 	}
 
-	private void handleBeanViolationReply(RoutingContext context,
-	                                      JsonObject violations) {
-		this.handleReply(context,
-		                 400,
-		                 APP_JSON,
-		                 violations.encodePrettily());
+	private void handleBeanViolationReply(RoutingContext context, JsonObject violations) {
+		this.handleReply(context, 400, APP_JSON, violations.encodePrettily());
 	}
 
-	private void handleDbError(RoutingContext context,
-	                           String body) {
-
+	private void handleDbError(RoutingContext context, String body) {
 		/*
 		 * Get the status code from the api error object which is provided as
 		 * json string
 		 */
 		JsonObject error = new JsonObject(body);
-		this.handleReply(context,
-		                 error.getInteger("statusCode"),
-		                 APP_JSON,
-		                 body);
+		this.handleReply(context, error.getInteger("statusCode"), APP_JSON, body);
 	}
 }

@@ -1,6 +1,7 @@
 package com.botomo.models;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -9,16 +10,24 @@ import io.vertx.core.json.JsonObject;
 
 public class Book {
 
-
     private String _id;
-    @NotNull(message="Title must not be null") @Size(min=1, message="Title must not be empty")
+    
+    @NotNull(message="Title must not be null") 
+    @Size(min=1, message="Title must not be empty")
     private String title;
+    
     private String subtitle;
-    @NotNull(message="Author must not be null") @Size(min=1, message="Author must not be empty")
+    
+    @NotNull(message="Author must not be null") 
+    @Size(min=1, message="Author must not be empty")
     private String author;
+    
     @Pattern(regexp="[1-9]{4}", message="The year must be formatted as four numbers string")
+    @Past(message="The year must be the current year or one in the past")
     private String year;
+    
     private int downs;
+    
     private int ups;
 
     public Book() {	}
@@ -56,8 +65,21 @@ public class Book {
 
     @Override
 	public String toString() {
-		return "Book [id=" + _id + ", title=" + title + ", subtitle=" + subtitle + ", author=" + author + ", year="
-				+ year + ", downs=" + downs + ", ups=" + ups + "]";
+		return "Book [id=" 
+				+ _id 
+				+ ", title=" 
+				+ title 
+				+ ", subtitle=" 
+				+ subtitle 
+				+ ", author=" 
+				+ author 
+				+ ", year="
+				+ year 
+				+ ", downs=" 
+				+ downs 
+				+ ", ups=" 
+				+ ups 
+				+ "]";
 	}
 
     public String get_id() {
