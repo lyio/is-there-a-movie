@@ -27,7 +27,7 @@ def query_goodreads(message)
   term = URI.encode(message.body)
   client.get_now("/search.xml?key=#{@KEY}&q=#{term}") do |response|
     puts "Received response with status code #{response.status_code()}"
-    if response.status_code >= 300 then reply(false, response.status_message, message) end
+    if response.status_code >= 300 then message.fail(response.status_code, response.status_message) end
     response.body_handler() do |buffer|
      @books = read_xml buffer
      reply(true, @books.to_json, message)
@@ -36,7 +36,7 @@ def query_goodreads(message)
   ensure
     client.close
     # if instance variable was never defined there was an error sending the request
-    if !@books then reply(false, "failed request", message) end
+    if !@books then message.fail(500, "failed sending the request") end
 end
 
 def read_xml(buffer)
