@@ -53,7 +53,7 @@ public class MainVerticle extends AbstractVerticle {
         Future<Void> goodreadsVerticleFuture = Future.future();
         this.deployGoodreadsVerticle(goodreadsVerticleFuture);
 
-		CompositeFuture.all(httpServerFut, bookCrudVerticalFut).setHandler(ar -> {
+		CompositeFuture.all(httpServerFut, bookCrudVerticalFut, goodreadsVerticleFuture).setHandler(ar -> {
 			if(ar.succeeded()){
 				startFuture.complete();
 			}else{
