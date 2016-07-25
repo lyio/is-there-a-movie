@@ -19,11 +19,11 @@ public class GoodreadsHandler extends BotomoHandler {
     public void lookup(RoutingContext context) {
         String search = context.request().getParam(SEARCH);
         if (StringUtils.isNullOrEmpty(search)) {
-            handleReply(context, 500, APP_JSON, Json.encode("search term missing"));
+            handleReply(context, 400, APP_JSON, Json.encode("search term missing"));
         } else {
             context.vertx().eventBus().send(GOODREADS, search, r -> {
-                AsyncReply reply = this.extractReply(r);
                 if(r.succeeded()) {
+                    AsyncReply reply = this.extractReply(r);
                     handleGetReply(reply.payload(), context);
                 } else {
                     handleReply(context, 500, APP_JSON, r.cause().getMessage());
