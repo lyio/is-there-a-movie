@@ -2,6 +2,7 @@ package com.botomo;
 
 import com.botomo.data.BookCrudVerticle;
 import com.botomo.handlers.BookHandler;
+import com.botomo.handlers.GoodreadsHandler;
 import com.botomo.routes.Routing;
 
 import io.vertx.core.AbstractVerticle;
@@ -19,15 +20,16 @@ public class MainVerticle extends AbstractVerticle {
 
     @Override
 	public void start(Future<Void> startFuture) throws Exception {
-    	
-		// create router
+        // create router
 		Router router = Router.router(vertx);
 		// create Book handler 
 		BookHandler bookHandler = new BookHandler(vertx);
+
+        GoodreadsHandler goodreadsHandler = new GoodreadsHandler(vertx);
 		// create Routing
-		Routing routing = new Routing(router, bookHandler);
+		Routing routing = new Routing(router, bookHandler, goodreadsHandler);
 		// create server
-		
+
 		// Define Future for http sever
 		Future<HttpServer> httpServerFut = Future.future();
 		vertx
@@ -42,13 +44,16 @@ public class MainVerticle extends AbstractVerticle {
 					httpServerFut.fail(result.cause());
 				}
 			});
-		
+
 		// Define Future for BookCrudVerticle deployment
-		
+
 		Future<BookCrudVerticle> bookCrudVerticalFut = Future.future();
 		this.deployBookCrudVerticle(bookCrudVerticalFut);
-		
-		CompositeFuture.all(httpServerFut, bookCrudVerticalFut).setHandler(ar -> {
+
+        Future<Void> goodreadsVerticleFuture = Future.future();
+        this.deployGoodreadsVerticle(goodreadsVerticleFuture);
+
+		CompositeFuture.all(httpServerFut, bookCrudVerticalFut, goodreadsVerticleFuture).setHandler(ar -> {
 			if(ar.succeeded()){
 				startFuture.complete();
 			}else{
@@ -61,7 +66,18 @@ public class MainVerticle extends AbstractVerticle {
     public void stop() throws Exception {
     	System.out.println("MainVerticle stopped");
     }
-    	
+
+    private void deployGoodreadsVerticle(Future<Void> fut) {
+        vertx.deployVerticle("GoodReadsVerticle.rb", result -> {
+            if (result.failed()) {
+                result.cause().printStackTrace();
+                fut.fail(result.cause());
+            } else {
+                fut.completer();
+            }
+        });
+    }
+
     private void deployBookCrudVerticle(Future<BookCrudVerticle> fut){
     	JsonObject dbConf = new JsonObject()
     			.put("db_name", System.getProperty(Config.dbname.name()))

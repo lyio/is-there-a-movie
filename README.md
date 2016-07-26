@@ -103,3 +103,20 @@ Response body:
     ...
   }]
   ```
+  
+**GET api/v1/goodreads?search=searchterm**
+  
+  - get list of book suggestions
+
+Response body:
+   ```json
+  [{
+    "title":"Lorem Ipsum",
+    "author":"Loras Ipsum",
+    "year":"2003",
+    "image": "http...."
+  },
+  {
+    ...
+  }]
+  ```

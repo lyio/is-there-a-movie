@@ -16,5 +16,6 @@ public class EventBusAddresses {
 	public static final String DOWN_VOTE 	=	"botomo.db.downVote"; 
 	
 	// Maybe other addresses for the communication between verticles
+	public static final String GOODREADS 	= 	"botomo.goodreads.lookup";
 
 }

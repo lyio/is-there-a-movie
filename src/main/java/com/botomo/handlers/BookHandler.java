@@ -7,52 +7,41 @@ import com.botomo.BeanValidator;
 import com.botomo.StringUtils;
 import com.botomo.data.AsyncReply;
 import com.botomo.models.Book;
-
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 /**
  * A Handler to manage requests concerning the book entity.
- *
  */
-public class BookHandler {
+public class BookHandler extends BotomoHandler {
 
-	private static final String APP_JSON = "application/json; charset=utf-8";
-	private static final String QPARAM_SEARCH = "search";
+    public BookHandler(final Vertx vertx) {
+        super(vertx);
+    }
 
-	private final Vertx vertx;
+    /**
+     * Gets all books from the database concerning the passed search term. If
+     * the search term isn't provided all existing books will be returned to the
+     * client. The response body will be json formatted.
+     *
+     * @param context
+     */
+    public void getAll(RoutingContext context) {
 
-	public BookHandler(final Vertx vertx) {
-		this.vertx = vertx;
-	}
+        String searchTerm = context.request().getParam(QPARAM_SEARCH);
 
-	/**
-	 * Gets all books from the database concerning the passed search term. If
-	 * the search term isn't provided all existing books will be returned to the
-	 * client. The response body will be json formatted.
-	 * 
-	 * @param context
-	 */
-	public void getAll(RoutingContext context) {
-
-		String searchTerm = context
-				.request()
-		        .getParam(QPARAM_SEARCH);
-
-		if (StringUtils.isNullOrEmpty(searchTerm)) {
-			// If search parameter is empty call getAllBooks to fetch all books
-			// from the db
-			this.getAllBooks(context);
-		} else {
-			// If search parameter is not empty perform the search on the fake
-			// data
-			this.getSearchedBooks(context, searchTerm);
-		}
-	}
+        if (StringUtils.isNullOrEmpty(searchTerm)) {
+            // If search parameter is empty call getAllBooks to fetch all books
+            // from the db
+            this.getAllBooks(context);
+        } else {
+            // If search parameter is not empty perform the search on the fake
+            // data
+            this.getSearchedBooks(context, searchTerm);
+        }
+    }
 
 	public void create(RoutingContext context) {
 		String book = context.getBodyAsString();
@@ -142,41 +131,5 @@ public class BookHandler {
 	           this.handleDbError(context, ar.payload());
            }
        });
-	}
-
-	private AsyncReply extractReply(AsyncResult<Message<Object>> result) {
-		String reply = (String) result
-				.result()
-                .body();
-		AsyncReply ar = new AsyncReply(reply);
-		return ar;
-	}
-
-	private void handleReply(RoutingContext context,
-	                         int status,
-	                         String contentType,
-	                         String body) {
-		// Handle successful database request
-		context.response()
-		       .setStatusCode(status)
-		       .putHeader("content-type", contentType)
-		       .end(body);
-	}
-
-	private void handleGetReply(String jsonResult, RoutingContext context) {
-		this.handleReply(context, 200, APP_JSON, jsonResult);
-	}
-
-	private void handleBeanViolationReply(RoutingContext context, JsonObject violations) {
-		this.handleReply(context, 400, APP_JSON, violations.encodePrettily());
-	}
-
-	private void handleDbError(RoutingContext context, String body) {
-		/*
-		 * Get the status code from the api error object which is provided as
-		 * json string
-		 */
-		JsonObject error = new JsonObject(body);
-		this.handleReply(context, error.getInteger("statusCode"), APP_JSON, body);
 	}
 }
