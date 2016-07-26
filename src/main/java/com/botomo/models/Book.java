@@ -1,7 +1,6 @@
 package com.botomo.models;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -22,7 +21,7 @@ public class Book {
     @Size(min=1, message="Author must not be empty")
     private String author;
     
-    @Pattern(regexp="[1-9]{4}", message="The year must be formatted as four numbers string")
+    @Pattern(regexp="[0-9]{4}", message="The year must be formatted as four numbers string")
     private String year;
     
     private int downs;
