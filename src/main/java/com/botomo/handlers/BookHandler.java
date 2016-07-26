@@ -43,102 +43,93 @@ public class BookHandler extends BotomoHandler {
         }
     }
 
-    public void create(RoutingContext context) {
-        String book = context.getBodyAsString();
-        Book b = null;
-        try {
-            b = Json.decodeValue(book,
-                    Book.class);
-        } catch (Exception e) {
-            handleReply(context,
-                    ApiErrors.V000.getStatusCode(),
-                    APP_JSON,
-                    ApiErrors.V000.toJsonString());
-        }
-        JsonObject violations = new BeanValidator().<Book>validate(b);
-        int violationsLen = violations.getJsonArray("violations")
-                .size();
-        if (violationsLen > 0) {
-            handleBeanViolationReply(context,
-                    violations);
-        } else {
-            vertx.eventBus()
-                    .send(ADD_ONE,
-                            book,
-                            result -> {
-                                AsyncReply reply = extractReply(result);
-                                if (reply.state()) {
-                                    handleReply(context,
-                                            201,
-                                            APP_JSON,
-                                            reply.payload());
-                                } else {
-                                    handleDbError(context,
-                                            reply.payload());
-                                }
-                            });
-        }
-    }
+	public void create(RoutingContext context) {
+		String book = context.getBodyAsString();
+		Book b = null;
+		try {
+			b = Json.decodeValue(book, Book.class);
+		} catch (Exception e) {
+			handleReply(context,
+			            ApiErrors.V000.getStatusCode(),
+			            APP_JSON,
+			            ApiErrors.V000.toJsonString());
+		}
+		JsonObject violations = new BeanValidator().<Book>validate(b);
+		int violationsLen = violations
+				.getJsonArray("violations")
+		        .size();
+		if (violationsLen > 0) {
+			handleBeanViolationReply(context, violations);
+		} else {
+			vertx.eventBus().send(ADD_ONE, book, result -> {
+	           AsyncReply reply = extractReply(result);
+	           if (reply.state()) {
+		           handleReply(context, 201, APP_JSON, reply.payload());
+	           } else {
+		           handleDbError(context, reply.payload());
+	           }
+           });
+		}
+	}
 
-    /**
-     * Upvote a single book. Return the updated book entity to the client.
-     *
-     * @param context
-     */
-    public void upvote(RoutingContext context) {
-        String bookId = (context.request()
+	/**
+	 * Upvote a single book. Return the updated book entity to the client.
+	 *
+	 * @param context
+	 */
+	public void upvote(RoutingContext context) {
+		String bookId = (context
+				.request()
                 .getParam("id"));
+		vertx.eventBus().send(UP_VOTE, bookId, result -> {
+           AsyncReply reply = extractReply(result);
+           if (reply.state()) {
+	           handleReply(context, 200, APP_JSON, reply.payload());
+           } else {
+	           handleDbError(context, reply.payload());
+           }
+       });
+	}
 
-        vertx.eventBus().send(UP_VOTE, bookId, result -> {
-            AsyncReply reply = extractReply(result);
+	/**
+	 * Downvote a single book. Return the updated book entity to the client.
+	 * 
+	 * @param context
+	 */
+	public void downvote(RoutingContext context) {
+		String bookId = context
+				.request()
+                .getParam("id");
+		vertx.eventBus().send(DOWN_VOTE, bookId, result -> {
+           AsyncReply reply = extractReply(result);
+           if (reply.state()) {
+	           handleReply(context, 200, APP_JSON, reply.payload());
+           } else {
+	           handleDbError(context, reply.payload());
+           }
+       });
+	}
 
-            if (reply.state()) {
-                handleReply(context, 200, APP_JSON, reply.payload());
-            } else {
-                handleDbError(context, reply.payload());
-            }
-        });
-    }
+	private void getAllBooks(RoutingContext context) {
+		vertx.eventBus().send(GET_ALL, null, result -> {
+           AsyncReply ar = extractReply(result);
+           if (ar.state()) {
+	           this.handleGetReply(ar.payload(), context);
+           } else {
+	           this.handleDbError(context, ar.payload());
+           }
+       });
+	}
 
-    /**
-     * Downvote a single book. Return the updated book entity to the client.
-     *
-     * @param context
-     */
-    public void downvote(RoutingContext context) {
-        String bookId = context.request().getParam("id");
-
-        vertx.eventBus().send(DOWN_VOTE, bookId, result -> {
-            AsyncReply reply = extractReply(result);
-
-            if (reply.state()) {
-                handleReply(context, 200, APP_JSON, reply.payload());
-            } else {
-                handleDbError(context, reply.payload());
-            }
-        });
-    }
-
-    private void getAllBooks(RoutingContext context) {
-        vertx.eventBus().send(GET_ALL, null, result -> {
-            AsyncReply ar = extractReply(result);
-            if (ar.state()) {
-                this.handleGetReply(ar.payload(), context);
-            } else {
-                this.handleDbError(context, ar.payload());
-            }
-        });
-    }
-
-    private void getSearchedBooks(RoutingContext context, final String searchTerm) {
-        vertx.eventBus().send(SEARCH, searchTerm, result -> {
-            AsyncReply ar = extractReply(result);
-            if (ar.state()) {
-                this.handleGetReply(ar.payload(), context);
-            } else {
-                this.handleDbError(context, ar.payload());
-            }
-        });
-    }
-
+	private void getSearchedBooks(RoutingContext context,
+	                              final String searchTerm) {
+		vertx.eventBus().send(SEARCH, searchTerm, result -> {
+           AsyncReply ar = extractReply(result);
+           if (ar.state()) {
+	           this.handleGetReply(ar.payload(), context);
+           } else {
+	           this.handleDbError(context, ar.payload());
+           }
+       });
+	}
 }

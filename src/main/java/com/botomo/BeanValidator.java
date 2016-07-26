@@ -15,11 +15,14 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public class BeanValidator {
-	private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+	private Validator validator = Validation
+			.buildDefaultValidatorFactory()
+			.getValidator();
 	
 	public <T>JsonObject validate(T object){
 		
-		Set<ConstraintViolation<T>> violations = this.validator.validate(object);
+		Set<ConstraintViolation<T>> violations = 
+				this.validator.validate(object);
 		
 		JsonObject jo = new JsonObject();
 		JsonArray ja = new JsonArray();
