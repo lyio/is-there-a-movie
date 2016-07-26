@@ -1,24 +1,19 @@
 package com.botomo.handlers;
 
-import static com.botomo.ApiErrors.*;
-import static com.botomo.routes.EventBusAddresses.*;
-
-import java.util.*;
-
 import com.botomo.ApiErrors;
 import com.botomo.BeanValidator;
 import com.botomo.StringUtils;
 import com.botomo.data.AsyncReply;
-
-import io.vertx.core.AsyncResult;
 import com.botomo.models.Book;
 import io.vertx.core.Vertx;
-import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
-
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
+
+import java.util.Objects;
+
+import static com.botomo.routes.EventBusAddresses.*;
 
 /**
  * A Handler to manage requests concerning the book entity.
@@ -89,7 +84,7 @@ public class BookHandler extends BotomoHandler {
         String bookId = (context.request().getParam("id"));
 
         if (Objects.isNull(bookId) || checkCookie(context, UP_VOTE)) {
-            handleReply(context, DB004.getStatusCode(), APP_JSON, DB004.getMsg());
+            handleReply(context, ApiErrors.DB005.getStatusCode(), APP_JSON, ApiErrors.DB005.getMsg());
         } else {
             vote(context, bookId, UP_VOTE);
         }
@@ -103,7 +98,7 @@ public class BookHandler extends BotomoHandler {
         String bookId = context.request().getParam("id");
 
         if (Objects.isNull(bookId) || checkCookie(context, DOWN_VOTE)) {
-            handleReply(context, DB004.getStatusCode(), APP_JSON, DB004.getMsg());
+            handleReply(context, ApiErrors.DB005.getStatusCode(), APP_JSON, ApiErrors.DB005.getMsg());
         } else {
             vote(context, bookId, DOWN_VOTE);
         }
