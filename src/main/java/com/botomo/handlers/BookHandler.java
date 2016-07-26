@@ -1,7 +1,5 @@
 package com.botomo.handlers;
 
-import static com.botomo.routes.EventBusAddresses.*;
-
 import com.botomo.ApiErrors;
 import com.botomo.BeanValidator;
 import com.botomo.StringUtils;
@@ -10,7 +8,12 @@ import com.botomo.models.Book;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
+
+import java.util.Objects;
+
+import static com.botomo.routes.EventBusAddresses.*;
 
 /**
  * A Handler to manage requests concerning the book entity.
@@ -73,42 +76,57 @@ public class BookHandler extends BotomoHandler {
 	}
 
 	/**
-	 * Upvote a single book. Return the updated book entity to the client.
-	 *
-	 * @param context
-	 */
-	public void upvote(RoutingContext context) {
-		String bookId = (context
-				.request()
-                .getParam("id"));
-		vertx.eventBus().send(UP_VOTE, bookId, result -> {
-           AsyncReply reply = extractReply(result);
-           if (reply.state()) {
-	           handleReply(context, 200, APP_JSON, reply.payload());
-           } else {
-	           handleDbError(context, reply.payload());
-           }
-       });
-	}
+     * Upvote a single book. Return the updated book entity to the client.
+     *
+     * @param context
+     */
+    public void upvote(RoutingContext context)  {
+        String bookId = (context.request().getParam("id"));
 
-	/**
-	 * Downvote a single book. Return the updated book entity to the client.
-	 * 
-	 * @param context
-	 */
-	public void downvote(RoutingContext context) {
-		String bookId = context
-				.request()
-                .getParam("id");
-		vertx.eventBus().send(DOWN_VOTE, bookId, result -> {
-           AsyncReply reply = extractReply(result);
-           if (reply.state()) {
-	           handleReply(context, 200, APP_JSON, reply.payload());
-           } else {
-	           handleDbError(context, reply.payload());
-           }
-       });
-	}
+        if (Objects.isNull(bookId) || checkCookie(context, UP_VOTE)) {
+            handleReply(context, ApiErrors.DB005.getStatusCode(), APP_JSON, ApiErrors.DB005.getMsg());
+        } else {
+            vote(context, bookId, UP_VOTE);
+        }
+    }
+
+    /**
+     * Downvote a single book. Return the updated book entity to the client.
+     * @param context
+     */
+    public void downvote(RoutingContext context) {
+        String bookId = context.request().getParam("id");
+
+        if (Objects.isNull(bookId) || checkCookie(context, DOWN_VOTE)) {
+            handleReply(context, ApiErrors.DB005.getStatusCode(), APP_JSON, ApiErrors.DB005.getMsg());
+        } else {
+            vote(context, bookId, DOWN_VOTE);
+        }
+    }
+
+    private void vote(RoutingContext context, String bookId, String voteType) {
+        vertx.eventBus().send(voteType, bookId, result -> {
+            AsyncReply reply = extractReply(result);
+
+            if(reply.state()) {
+                handleCookies(context, voteType);
+                handleGetReply(reply.payload(), context);
+            } else {
+                handleDbError(context, reply.payload());
+            }
+        });
+    }
+
+    private void handleCookies(RoutingContext context, String voteType) {
+        final Cookie cookie = Cookie
+                .cookie(voteType, "")
+                .setHttpOnly(false);
+        context.addCookie(cookie);
+    }
+
+    private boolean checkCookie(RoutingContext context, String cookieName) {
+        return Objects.nonNull(context.getCookie(cookieName));
+    }
 
 	private void getAllBooks(RoutingContext context) {
 		vertx.eventBus().send(GET_ALL, null, result -> {

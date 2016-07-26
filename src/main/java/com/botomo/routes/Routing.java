@@ -3,10 +3,12 @@ package com.botomo.routes;
 import com.botomo.handlers.BookHandler;
 
 import com.botomo.handlers.CorsHandler;
+import io.vertx.core.http.HttpMethod;
 import com.botomo.handlers.GoodreadsHandler;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CookieHandler;
 
 import static com.botomo.routes.EventBusAddresses.GOODREADS;
 
@@ -36,6 +38,9 @@ public class Routing {
     public Router register() {
         // enable CORS
         _router.route().handler(new CorsHandler().getCors());
+
+        // Cookie handler
+        _router.route().handler(CookieHandler.create());
 
         // list of book2movie suggestions
         _router.get(API + "books").handler(bookHandler::getAll);
