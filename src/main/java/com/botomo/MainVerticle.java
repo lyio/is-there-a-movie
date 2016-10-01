@@ -68,7 +68,10 @@ public class MainVerticle extends AbstractVerticle {
     }
 
     private void deployGoodreadsVerticle(Future<Void> fut) {
-        vertx.deployVerticle("GoodReadsVerticle.rb", result -> {
+		DeploymentOptions options = new DeploymentOptions()
+				.setInstances(2)
+				.setWorker(true);
+        vertx.deployVerticle("GoodReadsVerticle.rb", options, result -> {
             if (result.failed()) {
                 result.cause().printStackTrace();
                 fut.fail(result.cause());
@@ -82,8 +85,10 @@ public class MainVerticle extends AbstractVerticle {
     	JsonObject dbConf = new JsonObject()
     			.put("db_name", System.getProperty(Config.dbname.name()))
     			.put("connection_string", System.getProperty(Config.dburl.name()));
-    	DeploymentOptions dbOpt = new DeploymentOptions().setConfig(dbConf);
-    	
+    	DeploymentOptions dbOpt = new DeploymentOptions()
+				.setConfig(dbConf);
+
+
     	// deploy book crud verticle
     	vertx.deployVerticle(BookCrudVerticle.class.getName(), dbOpt, ar -> {
     		if (ar.failed()){
